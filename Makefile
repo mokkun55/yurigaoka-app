@@ -45,16 +45,24 @@ clean: ## node_modulesと.nextをクリーン
 clean-install: ## 完全クリーンして再インストール
 	pnpm clean:install
 
+# Firebase
+firebase-emulators: ## Firebase Emulatorsを起動
+	firebase emulators:start --import=./apps/student/emulator-data --export-on-exit
+
+firebase-emulators-clean: ## Firebase Emulatorsをクリーンスタート
+	rm -rf ./apps/student/emulator-data
+	firebase emulators:start --export-on-exit=./apps/student/emulator-data
+
+firebase-deploy-functions: ## Firebase Functionsをデプロイ
+	cd packages/functions && npm run build && cd ../.. && firebase deploy --only functions
+
+firebase-deploy-firestore: ## Firestoreのルールとインデックスをデプロイ
+	firebase deploy --only firestore
+
 # Student app specific
-student-emulators: ## Student: エミュレーターを起動
-	cd apps/student && make emulators
-
-student-emulators-clean: ## Student: エミュレーターをクリーンスタート
-	cd apps/student && make emulators-clean
-
 student-seed: ## Student: シードデータを投入
-	cd apps/student && make seed
+	cd apps/student && pnpm seed:emulator
 
 student-storybook: ## Student: Storybookを起動
-	cd apps/student && make story
+	cd apps/student && pnpm storybook
 

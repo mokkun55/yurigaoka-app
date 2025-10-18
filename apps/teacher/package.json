@@ -15,6 +15,7 @@
     "generate-type": "supabase gen types typescript --project-id zlegzzyoyxusajiwckbs > src/utils/supabase/database.types.ts"
   },
   "dependencies": {
+    "@monorepo/common": "workspace:*",
     "@hookform/resolvers": "^5.1.1",
     "@mantine/core": "^8.2.1",
     "@mantine/hooks": "^8.2.1",

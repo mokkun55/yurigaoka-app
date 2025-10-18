@@ -1,0 +1,19 @@
+{
+  "name": "@monorepo/common",
+  "version": "1.0.0",
+  "description": "Shared types and utilities for student and teacher apps",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  },
+  "private": true
+}

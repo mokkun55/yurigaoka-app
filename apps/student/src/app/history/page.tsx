@@ -2,9 +2,7 @@ import HomeHistoryCard from './_components/history-card/HomeHistoryCard'
 import MealHistoryCard from './_components/history-card/MealHistoryCard'
 // import { fetchAbsences } from './hooks/use-fetch-absences'
 import Link from 'next/link'
-
-// TODO: Firebaseに移行後、型定義を更新
-type Absence = any
+import type { Absence } from '@monorepo/common'
 
 export default async function HistoryPage() {
   // TODO: Firebaseに移行

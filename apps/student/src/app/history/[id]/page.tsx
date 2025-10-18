@@ -6,10 +6,7 @@ import Badge from '../_components/badge'
 // import { fetchHomeById } from '../hooks/use-fetch-home'
 import dayjs from 'dayjs'
 import TextLabel from '@/_components/ui/text-label'
-
-// TODO: Firebaseに移行後、型定義を更新
-type Absence = any
-type Home = any
+import type { Absence, Home } from '@monorepo/common'
 
 type Props = {
   params: Promise<{

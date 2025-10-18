@@ -161,36 +161,37 @@ make student-storybook
 ### Firebase Emulator
 
 ```bash
-# エミュレーターを起動
-cd apps/student && make emulators
+# エミュレーターを起動（monorepoルートから）
+make firebase-emulators
 
-# クリーンスタート
-cd apps/student && make emulators-clean
+# エミュレーターをクリーンスタート（既存データを破棄）
+make firebase-emulators-clean
 
-# シードデータを投入
-cd apps/student && make seed
-
-# または
-make student-emulators
-make student-emulators-clean
+# シードデータを投入（エミュレーターが起動している状態で実行）
 make student-seed
+
+# または直接firebase CLIを使用
+firebase emulators:start --import=./apps/student/emulator-data --export-on-exit
 ```
 
 ### Firebase Functions
 
 ```bash
-cd packages/functions
-
 # Functionsをビルド
+cd packages/functions
 npm run build
 
-# Functionsをデプロイ（studentアプリから）
-cd ../../apps/student
+# Functionsをデプロイ（monorepoルートから）
+cd ../..
+make firebase-deploy-functions
+
+# または直接firebase CLIを使用
 firebase deploy --only functions
 
-# Functionsをデプロイ（teacherアプリから）
-cd ../../apps/teacher
-firebase deploy --only functions
+# Firestoreのルールとインデックスをデプロイ
+make firebase-deploy-firestore
+# または
+firebase deploy --only firestore
 ```
 
 ## 🎯 教師用アプリ特有のコマンド

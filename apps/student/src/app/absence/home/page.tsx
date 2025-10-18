@@ -11,8 +11,7 @@ import { DateInput } from '@/_components/ui/input/date-input'
 import { TimeInput } from '@/_components/ui/input/time-input'
 import { submitHomecomingForm } from './actions'
 import fetchHomeList from '../hooks/use-fetch-home-list'
-// TODO: Firebaseに移行後、型定義を更新
-type Database = any
+import type { Home } from '@monorepo/common'
 import LoadingSpinner from '@/_components/ui/loading-spinner'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/navigation'
@@ -91,7 +90,7 @@ export type HomecomingFormValues = z.infer<typeof homecomingFormSchema>
 
 export default function AbsenceHome() {
   const router = useRouter()
-  const [homes, setHomes] = useState<Database['public']['Tables']['homes']['Row'][]>([])
+  const [homes, setHomes] = useState<Home[]>([])
   const [formValues, setFormValues] = useState<HomecomingFormValues | undefined>(undefined)
   const [isConfirm, setIsConfirm] = useState<boolean>(false)
 
