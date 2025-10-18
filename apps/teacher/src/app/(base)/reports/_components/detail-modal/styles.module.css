@@ -1,0 +1,73 @@
+.container {
+  .header {
+    display: flex;
+    flex-direction: column;
+
+    .studentInfo {
+      display: flex;
+      flex-direction: column;
+
+      .grade {
+        color: var(--sub-text);
+        font-size: 16px;
+      }
+
+      .name {
+        color: var(--main-text);
+        font-size: 24px;
+        font-weight: 700;
+      }
+    }
+  }
+
+  .applyInfo {
+    display: flex;
+    gap: 32px;
+
+    .labels {
+      display: flex;
+      flex-direction: column;
+
+      .labelText {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--sub-text);
+      }
+    }
+  }
+
+  .status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 16px 0;
+  }
+
+  .reject {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -8px;
+    margin-bottom: 16px;
+  }
+
+  .buttonContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+  }
+}
+
+.approvedUI {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+
+  .buttonArea {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+  }
+}

@@ -1,0 +1,51 @@
+.badge {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 999px;
+  font-weight: 700;
+
+  &.small {
+    font-size: 12px;
+    padding: 2px 8px;
+    width: 100px;
+  }
+
+  &.big {
+    font-size: 14px;
+    padding: 8px 32px;
+    width: fit-content !important;
+  }
+
+  &.pending {
+    background-color: var(--badge-pending-background);
+    color: var(--badge-pending-text);
+  }
+
+  &.approved {
+    background-color: var(--badge-approved-background);
+    color: var(--badge-approved-text);
+  }
+
+  &.rejected {
+    background-color: var(--badge-rejected-background);
+    color: var(--badge-rejected-text);
+  }
+
+  &.canceled {
+    background-color: var(--badge-canceled-background);
+    color: var(--badge-canceled-text);
+  }
+
+  &.stay {
+    background-color: var(--badge-approved-background);
+    color: var(--badge-approved-text);
+    width: 80px;
+  }
+
+  &.leave {
+    background-color: var(--badge-pending-background);
+    color: var(--badge-pending-text);
+    width: 80px;
+  }
+}

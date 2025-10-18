@@ -1,0 +1,65 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-gray);
+  padding: 16px;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .codeContainer {
+    display: flex;
+    flex-direction: column;
+
+    .code {
+      color: var(--main-blue);
+      font-size: 20px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: normal;
+      letter-spacing: 2px;
+    }
+
+    .bottom {
+      color: var(--sub-text);
+      font-size: 16px;
+      display: flex;
+      gap: 16px;
+    }
+  }
+
+  .buttonContainer {
+    display: flex;
+    gap: 8px;
+
+    .button {
+      background-color: none;
+      border: none;
+      cursor: pointer;
+      outline: none;
+    }
+  }
+}
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+
+  .modalTitle {
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  .modalDescription {
+    font-size: 16px;
+    color: var(--sub-text);
+  }
+
+  .modalButtons {
+    display: flex;
+    gap: 16px;
+  }
+}

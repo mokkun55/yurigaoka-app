@@ -1,0 +1,11 @@
+.button {
+  outline: none;
+  border: none;
+  background: none;
+  color: var(--main-blue);
+  text-decoration: underline;
+  cursor: pointer;
+  &:focus {
+    outline: none;
+  }
+}

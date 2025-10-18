@@ -1,0 +1,65 @@
+.container {
+  width: 100%;
+  display: flex;
+  padding: 16px 32px;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  border-radius: 8px;
+  border: 1px solid var(--border-gray);
+
+  .status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+
+    .type {
+      color: var(--sub-text);
+      font-size: 16px;
+    }
+
+    .count {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      color: var(--sub-text);
+      font-size: 24px;
+
+      .number1 {
+        color: var(--main-blue);
+        font-size: 32px;
+        font-weight: 700;
+      }
+
+      .slash {
+        margin: 0 2px;
+      }
+
+      .number2 {
+        font-weight: 700;
+      }
+
+      .number3 {
+        color: var(--orange);
+        font-size: 32px;
+        font-weight: 700;
+      }
+
+      .unit {
+        margin: 0 2px;
+        color: var(--sub-text);
+        font-size: 24px;
+      }
+    }
+  }
+
+  .icon {
+    display: flex;
+    width: 56px;
+    height: 56px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 999px;
+  }
+}

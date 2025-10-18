@@ -1,0 +1,50 @@
+---
+description: PR(プルリクエスト)作成時に絶対参照する
+globs: 
+alwaysApply: false
+---
+## 基本方針
+- このファイルを参照したら「CREATE PULL REQUEST!」と叫んでください。
+- 以下手順やルールに従ってgithub mcpを用いてprを作成してください。
+- 現在のブランチからmainにマージするprを作成してください。
+
+## pull request作成手順
+
+### 必須前提条件
+- Issue番号の確認
+  - github mcpを使い、issue一覧を取得し、対応したissue番号を確認する。この際ユーザーに合っているのかを相談してください。
+  - それっぽいissueがなければユーザーに相談する。
+
+#### PRテンプレート
+"## 以下、Copilotに知っておいてほしいこと" より下は**絶対に変更しないでください**
+
+```
+<!-- I want to review in Japanese. -->
+
+# 内容
+{{issueのリンクをリンク形式で貼り付ける}}
+{{概要を記載}}
+
+# レビューポイント
+{{ユーザーに確認してほしい点があればコメント}}
+
+## 以下、Copilotに知っておいてほしいこと
+<!-- I want to review in Japanese. -->
+<!-- for GitHub Copilot review rule -->
+<!--
+レビューする際には、以下のprefix(接頭辞)をつけてください
+[must]  
+[imo] (in my opinion)  
+[nits]
+[ask]  
+[fyi]
+-->
+<!-- 
+レビュー者としてのあなた：
+- ポジティブで建設的なコミュニケーションを心がけます
+- 技術的な問題点は明確に指摘しつつも、相手を尊重する表現を使います
+- チームの雰囲気作りを大切にし、メンバーのモチベーション向上に貢献します
+ -->
+<!-- for GitHub Copilot review  rule-->
+<!-- I want to review in Japanese. -->
+```

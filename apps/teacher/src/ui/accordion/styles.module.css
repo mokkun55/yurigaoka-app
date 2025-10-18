@@ -1,0 +1,19 @@
+.accordionRoot {
+  background: white;
+}
+
+.accordionControl {
+  background: white;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.accordionContent {
+  background: white;
+}
+
+.accordionItem {
+  background: white;
+}

@@ -1,0 +1,13 @@
+node_modules
+.next
+dist
+build
+out
+.turbo
+*.log
+pnpm-lock.yaml
+package-lock.json
+coverage
+.storybook-static
+*.tsbuildinfo
+

@@ -1,0 +1,26 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 16px;
+
+  .titleContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    .title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--main-text);
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: var(--sub-text);
+    }
+  }
+}

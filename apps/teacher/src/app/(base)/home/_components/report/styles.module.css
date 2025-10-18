@@ -1,0 +1,63 @@
+.item {
+  display: flex;
+  flex-direction: column;
+
+  .info {
+    display: flex;
+    gap: 2px;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .date {
+    font-size: 16px;
+    color: var(--sub-text);
+  }
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+
+  .text {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .textItem {
+      display: flex;
+      color: var(--sub-text);
+      font-weight: 700;
+
+      .value {
+        color: var(--sub-text);
+        font-weight: 400;
+        margin-left: 8px;
+      }
+    }
+
+    .row {
+      display: flex;
+      gap: 64px;
+    }
+
+    .specialReason {
+      padding: 8px;
+      background-color: var(--warn-background);
+      border-left: 4px solid var(--warn-border);
+    }
+  }
+
+  .commentArea {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .buttonArea {
+      display: flex;
+      gap: 16px;
+      justify-content: flex-end;
+    }
+  }
+}

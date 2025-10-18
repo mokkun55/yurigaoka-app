@@ -1,0 +1,29 @@
+{
+  "name": "yurigaoka-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Yurigaoka App Monorepo - Student and Teacher Applications",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter \"./apps/*\" dev",
+    "dev:student": "pnpm --filter student dev",
+    "dev:teacher": "pnpm --filter teacher dev",
+    "build": "pnpm --filter \"./apps/*\" build",
+    "build:student": "pnpm --filter student build",
+    "build:teacher": "pnpm --filter teacher build",
+    "lint": "pnpm --filter \"./apps/*\" lint",
+    "lint:fix": "pnpm --filter \"./apps/*\" lint:fix",
+    "format": "pnpm --filter \"./apps/*\" format",
+    "format:fix": "pnpm --filter \"./apps/*\" format:fix",
+    "tsc": "pnpm --filter \"./apps/*\" tsc",
+    "clean": "pnpm -r exec rm -rf node_modules .next",
+    "clean:install": "pnpm clean && rm -rf node_modules && pnpm install"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "typescript": "^5"
+  }
+}

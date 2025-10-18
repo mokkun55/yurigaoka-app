@@ -1,0 +1,13 @@
+.pageHeader {
+  display: flex;
+  height: 80px;
+  padding: 0 32px;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-gray);
+}
+
+.pageHeaderTitle {
+  font-size: 21px;
+  font-weight: 700;
+}

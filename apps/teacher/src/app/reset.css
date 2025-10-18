@@ -1,0 +1,151 @@
+/*
+ * Tailwind CSS Preflight (based on Normalize.css)
+ *
+ * This file contains a simplified representation of Tailwind's Preflight.
+ * For the complete and up-to-date version, please generate it using `@tailwind base;`
+ * with PostCSS and Tailwind CSS.
+ */
+
+/* 1. Use a more intuitive box-sizing model. */
+*,
+::before,
+::after {
+  box-sizing: border-box;
+  /* 2. Remove default margin. */
+  margin: 0;
+  /* 3. Inherit line-height from `html` instead of `body`. */
+  line-height: inherit;
+}
+
+/* 4. Default the body to a system font stack. */
+body {
+  font-family:
+    ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* 5. Add the correct display for all browsers. */
+/* 6. Add the correct display in iOS 4-7. */
+/* 7. Change the font properties to `inherit` in all browsers. */
+/* 8. Correct the `font` size and margin on `h1` elements in all browsers. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/* 9. Add the correct display in Chrome, Edge, and Firefox. */
+summary {
+  display: list-item;
+}
+
+/* 10. Improve consistency of default fonts in all browsers. */
+/* 11. Remove the inheritance of text transform in Edge, Firefox, and IE. */
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 100%; /* Correct the font size in all browsers. */
+  line-height: inherit; /* Correct the line height in all browsers. */
+  margin: 0; /* Remove default margin. */
+  padding: 0; /* Remove default padding for consistency */
+}
+
+/* 12. Correct the inability to style clickable types in iOS and Safari. */
+button,
+[type='button'],
+[type='reset'],
+[type='submit'] {
+  -webkit-appearance: button;
+  background-color: transparent;
+  background-image: none;
+}
+
+/* 13. Remove the default `border-width` that makes input elements look like buttons. */
+button:focus {
+  outline: 1px dotted;
+  outline: 5px auto -webkit-focus-ring-color;
+}
+
+/* 14. Improve the readability of tabindex navigation in Chrome and Safari. */
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+/* 15. Correct the display of all browsers. */
+abbr[title] {
+  text-decoration: underline dotted;
+}
+
+/* 16. Remove the default font size and margin on `blockquote` elements in all browsers. */
+blockquote,
+dl,
+dd,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+hr,
+figure,
+p,
+pre {
+  margin: 0;
+}
+
+/* 17. Remove the default list styles on `ul` and `ol` elements in all browsers. */
+ol,
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* 18. Make images easier to work with. */
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  display: block; /* Ensures images behave predictably in layout */
+  vertical-align: middle; /* Aligns images better with text (though display: block mitigates this) */
+  max-width: 100%; /* Prevents images from overflowing their containers */
+  height: auto; /* Maintains aspect ratio when max-width is applied */
+}
+
+/* 19. Ensure `hr` has a consistent style. */
+hr {
+  border-top-width: 1px;
+  color: inherit;
+}
+
+/* 20. Make sure textareas are not resizeable by default. */
+textarea {
+  resize: vertical;
+}
+
+/* 22. Fix the cursor style for disabled button elements. */
+[type='search'] {
+  -webkit-appearance: textfield; /* 1. Correct the odd `em` font sizing in all browsers. */
+  outline-offset: -2px; /* 2. Correct the outline style in all browsers. */
+}
+
+/* 23. Add the correct display in IE 10+. */
+[hidden] {
+  display: none;
+}
+
+/* 24. Ensure that the `border-style` property for `template` elements is consistent with all other elements. */
+template {
+  display: none;
+}

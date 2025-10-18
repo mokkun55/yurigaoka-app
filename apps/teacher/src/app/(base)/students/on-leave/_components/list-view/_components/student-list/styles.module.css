@@ -1,0 +1,80 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background-color: white;
+  border-radius: 8px;
+  border: 1px solid var(--border-gray);
+
+  .infoContainer {
+    display: flex;
+    flex-direction: column;
+
+    .nameContainer {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .dateContainer {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--sub-text);
+    }
+  }
+
+  .controlContainer {
+    display: flex;
+
+    .button {
+      padding: 8px 16px;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      outline: none;
+      border-radius: 4px;
+      color: var(--main-blue);
+      text-decoration: underline;
+    }
+  }
+}
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .studentInfo {
+    display: flex;
+    flex-direction: column;
+
+    .name {
+      color: var(--main-text);
+      font-size: 24px;
+      font-weight: 700;
+    }
+  }
+
+  .applyInfo {
+    display: flex;
+    gap: 32px;
+
+    .labels {
+      display: flex;
+      flex-direction: column;
+
+      .labelText {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--sub-text);
+      }
+    }
+  }
+}

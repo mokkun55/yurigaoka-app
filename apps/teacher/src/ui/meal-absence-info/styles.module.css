@@ -1,0 +1,42 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-gray);
+  padding: 16px;
+  border-radius: 4px;
+
+  .title {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+
+    .titleText {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--main-text);
+    }
+  }
+
+  .content {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+    overflow: hidden;
+    white-space: nowrap;
+
+    .labels {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      color: var(--sub-text);
+    }
+
+    .values {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      color: var(--main-text);
+    }
+  }
+}

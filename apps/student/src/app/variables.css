@@ -1,0 +1,33 @@
+:root {
+  /* App Colors */
+  --main-blue: #3b82f6;
+  --red: #ef4444;
+  --orange: #f97316;
+  --yellow: #ffac20;
+  --green: #10b981;
+  --gray: #4b5563;
+
+  --main-text: #0f1419;
+  --sub-text: #4b5563;
+  --border-gray: #d1d5db;
+  --background-light: #f8f9fa;
+  --card-background: #ffffff;
+  --muted-background: #f1f3f5;
+
+  --error-text: #b91c1c;
+  --error-background: #fee2e2;
+  --error-border: #fecaca;
+  --warn-text: #b45309;
+  --warn-background: #fef3c7;
+  --warn-border: #fde68a;
+
+  /* バッチ */
+  --badge-pending-text: rgba(180, 84, 10, 1);
+  --badge-pending-background: rgba(254, 243, 199, 1);
+  --badge-approved-text: rgba(5, 120, 87, 1);
+  --badge-approved-background: rgba(209, 250, 229, 1);
+  --badge-rejected-text: rgba(185, 28, 27, 1);
+  --badge-rejected-background: rgba(254, 226, 225, 1);
+  --badge-canceled-text: rgba(75, 85, 99, 1);
+  --badge-canceled-background: rgba(229, 231, 235, 1);
+}

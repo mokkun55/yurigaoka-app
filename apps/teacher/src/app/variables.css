@@ -1,0 +1,36 @@
+:root {
+  /* App Colors */
+  --main-blue: rgba(59, 130, 246, 1);
+  --main-blue-10: rgba(59, 130, 246, 0.1);
+  --red: rgba(239, 68, 68, 1);
+  --orange: rgba(249, 115, 22, 1);
+  --orange-10: rgba(249, 115, 22, 0.1);
+  --yellow: rgba(255, 172, 32, 1);
+  --green: rgba(16, 185, 129, 1);
+  --gray: rgba(75, 85, 99, 1);
+  --light-gray: rgba(243, 244, 246, 1);
+
+  --main-text: rgba(15, 20, 25, 1);
+  --sub-text: rgba(75, 85, 99, 1);
+  --border-gray: rgba(209, 213, 219, 1);
+  --background-light: rgba(248, 249, 250, 1);
+  --card-background: rgba(255, 255, 255, 1);
+  --muted-background: rgba(241, 243, 245, 1);
+
+  --error-text: rgba(185, 28, 28, 1);
+  --error-background: rgba(254, 226, 226, 1);
+  --error-border: rgba(254, 202, 202, 1);
+  --warn-text: rgba(180, 83, 9, 1);
+  --warn-background: rgba(254, 243, 199, 1);
+  --warn-border: rgba(253, 230, 138, 1);
+
+  /* バッチ */
+  --badge-pending-text: rgba(180, 84, 10, 1);
+  --badge-pending-background: rgba(254, 243, 199, 1);
+  --badge-approved-text: rgba(5, 120, 87, 1);
+  --badge-approved-background: rgba(209, 250, 229, 1);
+  --badge-rejected-text: rgba(185, 28, 27, 1);
+  --badge-rejected-background: rgba(254, 226, 225, 1);
+  --badge-canceled-text: rgba(75, 85, 99, 1);
+  --badge-canceled-background: rgba(229, 231, 235, 1);
+}
