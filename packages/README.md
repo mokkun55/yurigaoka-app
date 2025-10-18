@@ -2,6 +2,10 @@
 
 このディレクトリには、アプリケーション間で共有される共通パッケージを配置します。
 
+## 現在のパッケージ
+
+- **@monorepo/functions**: Firebase Functions（student、teacher両方で使用）
+
 ## 将来的な共通パッケージ例
 
 - **@yurigaoka/shared-ui**: 共通UIコンポーネント

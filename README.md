@@ -14,7 +14,8 @@
 
 - **apps/student**: 生徒用アプリケーション (Next.js + Firebase)
 - **apps/teacher**: 教師用アプリケーション (Next.js + Supabase)
-- **packages**: 共通パッケージ（将来的に使用）
+- **packages/functions**: Firebase Functions（両アプリで共有）
+- **packages**: その他の共通パッケージ（将来的に拡張予定）
 
 ## ⚙️ 必要要件
 

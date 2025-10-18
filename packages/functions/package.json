@@ -1,5 +1,7 @@
 {
-  "name": "functions",
+  "name": "@monorepo/functions",
+  "version": "1.0.0",
+  "description": "Firebase Functions shared by student and teacher apps",
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",

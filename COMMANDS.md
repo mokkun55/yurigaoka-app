@@ -179,13 +179,18 @@ make student-seed
 ### Firebase Functions
 
 ```bash
-cd apps/student/functions
+cd packages/functions
 
 # Functionsをビルド
 npm run build
 
-# Functionsをデプロイ
-npm run deploy
+# Functionsをデプロイ（studentアプリから）
+cd ../../apps/student
+firebase deploy --only functions
+
+# Functionsをデプロイ（teacherアプリから）
+cd ../../apps/teacher
+firebase deploy --only functions
 ```
 
 ## 🎯 教師用アプリ特有のコマンド

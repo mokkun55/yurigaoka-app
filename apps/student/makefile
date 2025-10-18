@@ -19,8 +19,8 @@ seed:
 
 # Functionsをビルド
 build-functions:
-	cd functions && npm run build
+	cd ../../packages/functions && npm run build
 
 # Functionsをデプロイ
 deploy-functions:
-	cd functions && npm run deploy
+	firebase deploy --only functions
