@@ -12,19 +12,19 @@ pre-commit:
     eslint:
       priority: 2
       glob: '*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}'
-      run: pnpm run lint || true
+      run: pnpm run lint
 
     tsc:
       priority: 2
       glob: '*.{js,ts,tsx}'
-      run: pnpm run tsc || true
+      run: pnpm run tsc
 
     spell-check-student:
       priority: 2
       glob: 'apps/student/**/*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}'
-      run: cd apps/student && pnpm cspell "src/**/*.{ts,tsx,md,json}" || true
+      run: cd apps/student && pnpm cspell "src/**/*.{ts,tsx,md,json}"
 
     spell-check-teacher:
       priority: 2
       glob: 'apps/teacher/**/*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}'
-      run: cd apps/teacher && pnpm cspell "src/**/*.{ts,tsx,md,json}" || true
+      run: cd apps/teacher && pnpm cspell "src/**/*.{ts,tsx,md,json}"
