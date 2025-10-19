@@ -5,6 +5,10 @@ import NoticeList from './_components/notice-list'
 export default function Home() {
   return (
     <div className="p-4 gap-4 flex flex-col text-center overflow-y-auto">
+      <div>
+        <h1 className="text-2xl font-bold">百合が丘寮アプリ</h1>
+      </div>
+
       <div className="flex flex-col justify-center gap-2">
         <div className="flex gap-2 w-full">
           <ApplicationCard
