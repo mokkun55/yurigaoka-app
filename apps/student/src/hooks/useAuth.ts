@@ -15,7 +15,20 @@ export function useAuth() {
 
   const signInWithGoogle = async () => {
     try {
-      await signInWithPopup(auth, googleProvider)
+      const result = await signInWithPopup(auth, googleProvider)
+      const user = result.user
+      const token = await user.getIdToken()
+      const response = await fetch('/api/auth/sessionLogin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      })
+      if (!response.ok) {
+        throw new Error('ログインに失敗しました')
+      }
+      router.push('/')
     } catch (error) {
       console.error(error)
       return `ログインに失敗しました: ${error}`

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import dayjs from 'dayjs'
+import { TokenRefreshProvider } from '@/providers/TokenRefreshProvider'
 
 dayjs.locale('ja')
 
@@ -19,8 +20,10 @@ export default function RootLayout({
     <html lang="ja">
       <body className={`antialiased flex justify-center`}>
         <div className="w-[100svw] h-[100svh] max-w-[500px] max-h-[100vh] relative border-r border-l border-(--border-gray) flex flex-col">
-          <Toaster />
-          {children}
+          <TokenRefreshProvider>
+            <Toaster />
+            {children}
+          </TokenRefreshProvider>
         </div>
       </body>
     </html>
