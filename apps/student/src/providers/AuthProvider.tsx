@@ -38,12 +38,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (user) {
         setCurrentUser(user)
         setUid(user.uid)
-        getRoles().then((roles) => {
-          setClaims(roles)
-        })
+        getRoles()
+          .then((roles) => {
+            setClaims(roles)
+          })
+          .catch(() => {
+            // ログインページなどでは認証情報がないため、エラーを無視
+            setClaims(null)
+          })
       } else {
         setCurrentUser(null)
         setUid(null)
+        setClaims(null)
       }
     })
     return () => unsubscribe()
