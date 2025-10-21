@@ -1,14 +1,49 @@
 'use server'
 
-import { adminDb } from '@/lib/firebase/admin'
+import { adminDb, adminAuth } from '@/lib/firebase/admin'
 import type { UserFormValues, InvitationCodeValues } from './page'
 import { inviteCodeConverter } from '@/lib/firebase/converters/invite-code-converter'
+import { Timestamp } from 'firebase-admin/firestore'
+import { cookies } from 'next/headers'
 
 // TODO ユーザー作成時の処理
-export async function registerUser(registerFormData: UserFormValues) {
-  console.log('サーバーで受け取ったユーザー情報:', registerFormData)
-  // TODO: Firebaseでの実装に置き換える
-  // 学年 クラス 部活 帰省先 保護者氏名 住所 緊急連絡先 を登録する
+export async function registerUser(registerFormData: UserFormValues & { name: string; uid: string; email: string }) {
+  const updateData = {
+    grade: registerFormData.gradeName,
+    class: registerFormData.className,
+    club: registerFormData.club === 'none' ? '' : registerFormData.club,
+    roomNumber: registerFormData.roomNumber,
+    phoneNumber: registerFormData.emergencyTel,
+    locations: [
+      {
+        name: registerFormData.homeAddressName,
+        address: registerFormData.homeAddressAddress,
+        phoneNumber: registerFormData.emergencyTel,
+        parentName: registerFormData.parentName,
+        createdAt: Timestamp.now(),
+      },
+    ],
+  }
+
+  await adminDb.collection('users').doc(registerFormData.uid).update(updateData)
+
+  // カスタムクレームを更新
+  const sessionCookie = (await cookies()).get('__session')?.value
+  if (!sessionCookie) {
+    throw new Error('セッションクッキーが見つかりません')
+  }
+
+  const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie)
+  if (!decodedClaims) {
+    throw new Error('セッションクッキーが無効です')
+  }
+
+  // 現在のカスタムクレームを取得して新しいクレームを設定
+  await adminAuth.setCustomUserClaims(decodedClaims.uid, {
+    role: decodedClaims.role || 'student',
+    isRegistered: true,
+    uid: decodedClaims.uid,
+  })
 }
 
 export async function verifyInvitationCode(inviteFormData: InvitationCodeValues) {
