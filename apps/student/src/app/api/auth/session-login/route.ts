@@ -19,7 +19,11 @@ export async function POST(req: NextRequest) {
       expiresIn: MAX_AGE,
     })
 
-    // 2. CookieをHttpOnlyでセキュアに設定
+    // 2. セッションCookieからカスタムクレームを取得
+    const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie)
+    const isRegistered = decodedClaims.isRegistered || false
+
+    // 3. CookieをHttpOnlyでセキュアに設定
     ;(await cookies()).set({
       name: SESSION_COOKIE_NAME,
       value: sessionCookie,
@@ -33,6 +37,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Signed in successfully',
+      isRegistered,
     })
   } catch (error) {
     console.error('Session Login Error:', error)
