@@ -36,13 +36,18 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // 保護しないパス（認証チェックをスキップ）
-  const ignoreUrls = ['/api', '/auth', '/develop', '/error']
+  const ignoreUrls = ['/api', '/auth', '/develop', '/error', '/logout']
   if (ignoreUrls.some((url) => pathname.startsWith(url))) {
     return NextResponse.next()
   }
 
   // セッションを検証
   const session = await verifySession(request)
+
+  // 教員のアクセスを拒否（どのページでも）
+  if (session?.role === 'teacher') {
+    return NextResponse.redirect(new URL('/error/teacher-access-denied', request.url))
+  }
 
   // 公開ページ（認証不要だが、認証済みユーザーは別ページへリダイレクト）
   const publicUrls = ['/login']
@@ -81,11 +86,6 @@ export async function middleware(request: NextRequest) {
   // 未登録の場合は登録ページへリダイレクト
   if (!session.isRegistered) {
     return NextResponse.redirect(new URL('/create-user', request.url))
-  }
-
-  // 学生以外はアクセス拒否（学生アプリなので）
-  if (session.role !== 'student') {
-    return NextResponse.redirect(new URL('/auth/auth-code-error', request.url))
   }
 
   return NextResponse.next()

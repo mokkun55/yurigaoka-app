@@ -9,6 +9,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     const error = await signInWithGoogle()
+
     if (error) {
       console.error(error)
     }

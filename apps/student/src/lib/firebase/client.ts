@@ -22,4 +22,6 @@ if (process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === 'true') {
   connectFunctionsEmulator(functions, 'localhost', 5001)
 }
 
-export const googleProvider = new GoogleAuthProvider()
+export const googleProvider = new GoogleAuthProvider().setCustomParameters({
+  hd: 'ktc.ac.jp',
+})

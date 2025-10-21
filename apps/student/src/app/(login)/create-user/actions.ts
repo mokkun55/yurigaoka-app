@@ -2,6 +2,7 @@
 
 import { adminDb } from '@/lib/firebase/admin'
 import type { UserFormValues, InvitationCodeValues } from './page'
+import { inviteCodeConverter } from '@/lib/firebase/converters/invite-code-converter'
 
 // TODO ユーザー作成時の処理
 export async function registerUser(registerFormData: UserFormValues) {
@@ -15,11 +16,10 @@ export async function verifyInvitationCode(inviteFormData: InvitationCodeValues)
   try {
     // 検証
     const snapshot = await adminDb.collection('inviteCodes').where('code', '==', inviteFormData.invitationCode).get()
-    if (snapshot.empty) {
+    const inviteCode = inviteCodeConverter.fromQuerySnapshot(snapshot)
+    if (inviteCode.length === 0) {
       throw new Error('招待コードが無効です')
     }
-    const inviteCode = snapshot.docs[0].data()
-    console.log('招待コード:', inviteCode)
   } catch (error) {
     console.error('招待コードの検証に失敗しました', error)
     throw error

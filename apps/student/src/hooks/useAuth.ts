@@ -1,15 +1,12 @@
-import Cookies from 'js-cookie'
 import { useRouter } from 'next/navigation'
 import { auth, googleProvider } from '@/lib/firebase/client'
-import { signInWithPopup, signOut as firebaseSignOut, signInWithEmailAndPassword } from 'firebase/auth'
+import { signInWithPopup, signOut as firebaseSignOut, signInWithEmailAndPassword, type User } from 'firebase/auth'
 
 export function useAuth() {
   const router = useRouter()
 
   const signOut = async () => {
     await firebaseSignOut(auth)
-    // cookieを削除
-    Cookies.remove('is_registered')
     router.push('/login')
   }
 
@@ -40,7 +37,7 @@ export function useAuth() {
     if (!user) {
       return null
     }
-    return user
+    return user as unknown as User
   }
 
   // TODO 後で消す
