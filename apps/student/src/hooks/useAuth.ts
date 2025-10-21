@@ -17,8 +17,8 @@ export function useAuth() {
     try {
       const result = await signInWithPopup(auth, googleProvider)
       const user = result.user
-      const token = await user.getIdToken()
-      const response = await fetch('/api/auth/sessionLogin', {
+      const token = await user.getIdToken(true)
+      const response = await fetch('/api/auth/session-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

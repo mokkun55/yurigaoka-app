@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       value: sessionCookie,
       maxAge: MAX_AGE / 1000, // maxAgeは秒単位
       httpOnly: true, // JavaScriptからのアクセスを禁止
-      // secure: process.env.NODE_ENV === "production", // HTTPSでのみ送信
+      secure: process.env.NODE_ENV === 'production', // HTTPSでのみ送信
       path: '/',
       sameSite: 'lax',
     })
