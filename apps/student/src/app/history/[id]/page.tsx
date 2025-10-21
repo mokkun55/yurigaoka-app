@@ -6,7 +6,7 @@ import Badge from '../_components/badge'
 // import { fetchHomeById } from '../hooks/use-fetch-home'
 import dayjs from 'dayjs'
 import TextLabel from '@/_components/ui/text-label'
-import type { Absence, Home } from '@monorepo/common'
+import type { Absence, Home } from '@yurigaoka-app/common'
 
 type Props = {
   params: Promise<{

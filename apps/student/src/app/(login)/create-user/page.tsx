@@ -168,7 +168,14 @@ export default function RegisterPage() {
               name="invitationCode"
               control={invitationCodeControl}
               // cspell:disable-next-line
-              render={({ field }) => <BaseInput {...field} placeholder="例: JJXRUJN6" fullWidth />}
+              render={({ field }) => (
+                <BaseInput
+                  {...field}
+                  placeholder="例: JJXRUJN6"
+                  fullWidth
+                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                />
+              )}
             />
             {invitationCodeErrors.invitationCode && (
               <p className="text-red-500 text-sm mt-1">{invitationCodeErrors.invitationCode.message}</p>

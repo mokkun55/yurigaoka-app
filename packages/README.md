@@ -4,7 +4,7 @@
 
 ## 現在のパッケージ
 
-### @monorepo/common
+### @yurigaoka-app/common
 
 共通の型定義とユーティリティを提供するパッケージです。
 
@@ -19,7 +19,7 @@
 
 詳細は [packages/common/README.md](./common/README.md) を参照してください。
 
-### @monorepo/functions
+### @yurigaoka-app/functions
 
 Firebase Functions（student、teacher両方で使用）
 
@@ -28,9 +28,9 @@ Firebase Functions（student、teacher両方で使用）
 
 ## 将来的な共通パッケージ例
 
-- **@monorepo/shared-ui**: 共通UIコンポーネント
-- **@monorepo/shared-utils**: 共通ユーティリティ関数
-- **@monorepo/firebase-config**: Firebase設定
+- **@yurigaoka-app/shared-ui**: 共通UIコンポーネント
+- **@yurigaoka-app/shared-utils**: 共通ユーティリティ関数
+- **@yurigaoka-app/firebase-config**: Firebase設定
 
 ## パッケージの作成方法
 
@@ -45,7 +45,7 @@ pnpm init
 
 ### パッケージ命名規則
 
-- パッケージ名は `@monorepo/パッケージ名` の形式で命名してください
+- パッケージ名は `@yurigaoka-app/パッケージ名` の形式で命名してください
 - workspace設定により、アプリケーションから `workspace:*` として参照できます
 
 ### TypeScript設定
@@ -57,7 +57,7 @@ pnpm init
 {
   "compilerOptions": {
     "paths": {
-      "@monorepo/パッケージ名": ["../../packages/パッケージ名/src/index.ts"]
+      "@yurigaoka-app/パッケージ名": ["../../packages/パッケージ名/src/index.ts"]
     }
   }
 }
@@ -70,7 +70,7 @@ pnpm init
 ```json
 {
   "dependencies": {
-    "@monorepo/パッケージ名": "workspace:*"
+    "@yurigaoka-app/パッケージ名": "workspace:*"
   }
 }
 ```

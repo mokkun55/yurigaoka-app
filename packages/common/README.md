@@ -1,4 +1,4 @@
-# @monorepo/common
+# @yurigaoka-app/common
 
 学生アプリと教職員アプリで共有する型定義やユーティリティを提供するパッケージです。
 
@@ -16,7 +16,7 @@ pnpm install
 ### 型定義のインポート
 
 ```typescript
-import type { UserInfo, Absence, Home, AbsenceStatus } from '@monorepo/common'
+import type { UserInfo, Absence, Home, AbsenceStatus } from '@yurigaoka-app/common'
 
 // ユーザー情報
 const user: UserInfo = {

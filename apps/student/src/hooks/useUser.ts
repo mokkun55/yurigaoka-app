@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { onAuthStateChanged, type User as FirebaseUser } from 'firebase/auth'
 import { doc, getDoc } from 'firebase/firestore'
 import { auth, db } from '@/lib/firebase/client'
-import type { UserInfo } from '@monorepo/common'
+import type { UserInfo } from '@yurigaoka-app/common'
 
 export function useUser() {
   const [user, setUser] = useState<UserInfo | null>(null)

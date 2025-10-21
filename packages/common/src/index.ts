@@ -1,5 +1,5 @@
 /**
- * @monorepo/common
+ * @yurigaoka-app/common
  * 共通の型定義とユーティリティ
  */
 

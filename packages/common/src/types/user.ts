@@ -1,31 +1,31 @@
-/**
- * ユーザーの役割
- */
-export type UserRole = 'student' | 'teacher' | 'admin'
+import { Timestamp } from 'firebase-admin/firestore'
+import { Location, LocationData } from './location'
 
-/**
- * ユーザーの基本情報
- * Firestore: users コレクション
- */
-export interface UserInfo {
-  /** ユーザーID (Firebase Auth UID) */
-  uid: string
-  /** ユーザー名 */
+// サーバー、クライアント共通の型定義
+export type User = {
+  id: string
+  email: string
   name: string
-  /** メールアドレス */
-  email: string | null
-  /** 表示名（Firebase Auth） */
-  displayName?: string | null
-  /** 役割 */
-  role: UserRole
-  /** 削除フラグ */
-  is_deleted?: boolean
-  /** 作成日時 */
-  created_at?: {
-    type: string
-    seconds: number
-    nanoseconds: number
-  }
-  /** 登録完了フラグ */
-  is_registered?: boolean
+  createdAt: Date
+  isDeleted: boolean
+  grade?: string
+  class?: string
+  club?: string
+  roomNumber?: string
+  phoneNumber?: string
+  locations?: Location[]
+}
+
+// firebaseに保存する型
+export type UserData = {
+  email: string
+  name: string
+  createdAt: Timestamp
+  isDeleted: boolean
+  grade?: string
+  class?: string
+  club?: string
+  roomNumber?: string
+  phoneNumber?: string
+  locations?: LocationData[]
 }

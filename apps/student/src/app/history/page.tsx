@@ -2,7 +2,7 @@ import HomeHistoryCard from './_components/history-card/HomeHistoryCard'
 import MealHistoryCard from './_components/history-card/MealHistoryCard'
 // import { fetchAbsences } from './hooks/use-fetch-absences'
 import Link from 'next/link'
-import type { Absence } from '@monorepo/common'
+import type { Absence } from '@yurigaoka-app/common'
 
 export default async function HistoryPage() {
   // TODO: Firebaseに移行
