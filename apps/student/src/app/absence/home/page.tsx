@@ -10,16 +10,15 @@ import { useState, useEffect } from 'react'
 import { DateInput } from '@/_components/ui/input/date-input'
 import { TimeInput } from '@/_components/ui/input/time-input'
 import { submitHomecomingForm } from './actions'
-import fetchHomeList from '../hooks/use-fetch-home-list'
-import type { Home } from '@yurigaoka-app/common'
 import LoadingSpinner from '@/_components/ui/loading-spinner'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
 import { formatDateWithWeekday } from '@/utils/dateUtils'
 import { MealCheckboxGroup } from '@/_components/ui/checkbox/checkbox-field/MealCheckboxGroup'
-
-// TODO 平日は帰らせないなどの仕組みも追加する
+import { Location } from '@yurigaoka-app/common'
+import { useFirebaseAuthContext } from '@/providers/AuthProvider'
+import { getLocations } from './actions'
 
 // 門限時刻を変数で定義
 const LIMIT_MORNING = '07:39'
@@ -90,18 +89,21 @@ export type HomecomingFormValues = z.infer<typeof homecomingFormSchema>
 
 export default function AbsenceHome() {
   const router = useRouter()
-  const [homes, setHomes] = useState<Home[]>([])
   const [formValues, setFormValues] = useState<HomecomingFormValues | undefined>(undefined)
   const [isConfirm, setIsConfirm] = useState<boolean>(false)
+  const [locations, setLocations] = useState<Location[]>([])
+  const { uid } = useFirebaseAuthContext()
 
   useEffect(() => {
-    const fetchHomes = async () => {
-      const data = await fetchHomeList()
-      setHomes(data || [])
+    if (!uid) {
+      return
     }
-
-    fetchHomes()
-  }, [])
+    const fetchLocations = async () => {
+      const data = await getLocations(uid)
+      setLocations(data || [])
+    }
+    fetchLocations()
+  }, [uid])
 
   const today = dayjs().format('YYYY-MM-DD')
 
@@ -206,9 +208,9 @@ export default function AbsenceHome() {
                 <BaseSelect
                   {...field}
                   value={field.value ?? ''}
-                  options={homes.map((home) => ({
-                    label: home.name,
-                    value: JSON.stringify({ name: home.name, address: home.address }),
+                  options={locations.map((location) => ({
+                    label: location.name,
+                    value: JSON.stringify({ id: location.id, name: location.name, address: location.address }),
                   }))}
                   placeholder="プリセットから選択してください"
                   fullWidth

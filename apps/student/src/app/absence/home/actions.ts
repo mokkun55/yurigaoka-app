@@ -1,9 +1,23 @@
 'use server'
 
+import { adminDb } from '@/lib/firebase/admin'
+import { userConverter } from '@/lib/firebase/converters/user-converter'
 import { HomecomingFormValues } from './page'
 // import dayjs from 'dayjs'
 
-// TODO 帰省&欠食届を出す時の処理
+// uidからlocationsを取得
+export async function getLocations(uid: string) {
+  const userDoc = await adminDb.collection('users').doc(uid).get()
+
+  const user = userConverter.fromDocumentSnapshot(userDoc)
+  if (!user) {
+    throw new Error('ユーザーが見つかりません')
+  }
+
+  return user.locations || []
+}
+
+// 帰省届を提出
 export async function submitHomecomingForm(data: HomecomingFormValues) {
   console.log('サーバーアクションで受け取ったデータ:', data)
   // TODO: Firebaseに移行
