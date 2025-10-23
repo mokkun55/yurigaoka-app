@@ -1,7 +1,6 @@
 'use server'
 
 import { adminDb } from '@/lib/firebase/admin'
-import { userConverter } from '@/lib/firebase/converters/user-converter'
 import { HomecomingFormValues } from './page'
 // import dayjs from 'dayjs'
 
@@ -9,12 +8,12 @@ import { HomecomingFormValues } from './page'
 export async function getLocations(uid: string) {
   const userDoc = await adminDb.collection('users').doc(uid).get()
 
-  const user = userConverter.fromDocumentSnapshot(userDoc)
-  if (!user) {
+  if (!userDoc.exists) {
     throw new Error('ユーザーが見つかりません')
   }
 
-  return user.locations || []
+  const userData = userDoc.data()
+  return userData?.locations || []
 }
 
 // 帰省届を提出

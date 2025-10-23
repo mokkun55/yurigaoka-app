@@ -2,7 +2,6 @@
 
 import { adminDb, adminAuth } from '@/lib/firebase/admin'
 import type { UserFormValues, InvitationCodeValues } from './page'
-import { inviteCodeConverter } from '@/lib/firebase/converters/invite-code-converter'
 import { Timestamp } from 'firebase-admin/firestore'
 import { cookies } from 'next/headers'
 
@@ -51,8 +50,7 @@ export async function verifyInvitationCode(inviteFormData: InvitationCodeValues)
   try {
     // 検証
     const snapshot = await adminDb.collection('inviteCodes').where('code', '==', inviteFormData.invitationCode).get()
-    const inviteCode = inviteCodeConverter.fromQuerySnapshot(snapshot)
-    if (inviteCode.length === 0) {
+    if (snapshot.empty) {
       throw new Error('招待コードが無効です')
     }
   } catch (error) {

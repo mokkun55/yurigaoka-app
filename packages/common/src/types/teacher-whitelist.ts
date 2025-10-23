@@ -3,5 +3,3 @@ export type TeacherWhitelist = {
   email: string
   role: string
 }
-
-export type TeacherWhitelistData = Omit<TeacherWhitelist, 'id'>
