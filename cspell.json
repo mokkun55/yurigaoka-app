@@ -36,7 +36,8 @@
     "unde",
     "veritatis",
     "yurigaoka",
-    "zod"
+    "zod",
+    "firestore"
   ],
   "ignorePaths": [
     "node_modules/**",

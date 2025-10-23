@@ -6,8 +6,8 @@ import { CalendarIcon, ForkKnife, HomeIcon } from 'lucide-react'
 import Badge from '../_components/badge'
 import dayjs from 'dayjs'
 import TextLabel from '@/_components/ui/text-label'
-import type { Submission } from '@yurigaoka-app/common'
-import { getSubmissionById } from '../actions'
+import type { Submission, Location } from '@yurigaoka-app/common'
+import { getSubmissionById, getLocationById } from '../actions'
 import { useEffect, useState } from 'react'
 import LoadingSpinner from '@/_components/ui/loading-spinner'
 
@@ -19,6 +19,7 @@ type Props = {
 
 export default function HistoryDetailPage({ params }: Props) {
   const [submission, setSubmission] = useState<Submission | null>(null)
+  const [location, setLocation] = useState<Location | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [id, setId] = useState<string | null>(null)
@@ -43,6 +44,13 @@ export default function HistoryDetailPage({ params }: Props) {
           return
         }
         setSubmission(data)
+
+        // 帰省申請の場合、location情報も取得
+        if (data.type === '帰省') {
+          const homecomingSubmission = data as import('@yurigaoka-app/common').HomecomingSubmission
+          const locationData = await getLocationById(homecomingSubmission.locationId)
+          setLocation(locationData)
+        }
       } catch (err) {
         console.error('申請詳細の取得に失敗しました:', err)
         setError('データの取得に失敗しました')
@@ -116,9 +124,7 @@ export default function HistoryDetailPage({ params }: Props) {
             <div className="flex flex-col gap-2">
               <div>
                 <TextLabel label="帰省先" />
-                <p className="text-(--main-text)">
-                  {(submission as import('@yurigaoka-app/common').HomecomingSubmission).locationId}
-                </p>
+                <p className="text-(--main-text)">{location?.name || '取得中...'}</p>
               </div>
 
               <div>

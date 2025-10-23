@@ -79,10 +79,6 @@ export default function HistoryPage() {
                       startDate: homecomingSubmission.startDate,
                       endDate: homecomingSubmission.endDate,
                     }}
-                    homecoming={{
-                      id: homecomingSubmission.locationId,
-                      place: '帰省先', // TODO: 実際の場所名を取得
-                    }}
                     meal={meal}
                   />
                 </Link>

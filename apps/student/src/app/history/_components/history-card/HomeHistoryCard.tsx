@@ -9,10 +9,6 @@ type Props = {
     startDate: Date | string
     endDate: Date | string
   }
-  homecoming: {
-    id: string
-    place: string
-  }
   meal: {
     startDate: {
       morning: boolean
@@ -25,7 +21,7 @@ type Props = {
   }
 }
 
-export default function HomeHistoryCard({ status, createdAt, period, homecoming, meal }: Props) {
+export default function HomeHistoryCard({ status, createdAt, period, meal }: Props) {
   let borderColor = ''
   switch (status) {
     case 'pending':
@@ -87,7 +83,6 @@ export default function HomeHistoryCard({ status, createdAt, period, homecoming,
               {meal.endDate.evening && ' 夕食'}
             </p>
           )}
-          {homecoming.place && <p>帰省先: {homecoming.place}</p>}
         </div>
       </div>
     </div>

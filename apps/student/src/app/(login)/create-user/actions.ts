@@ -2,7 +2,6 @@
 
 import { adminDb, adminAuth } from '@/lib/firebase/admin'
 import type { UserFormValues, InvitationCodeValues } from './page'
-import { Timestamp } from 'firebase-admin/firestore'
 import { cookies } from 'next/headers'
 import { createLocation } from '@/firestore/location-operations'
 

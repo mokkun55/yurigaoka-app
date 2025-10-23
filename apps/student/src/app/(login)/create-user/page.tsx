@@ -184,10 +184,10 @@ export default function RegisterPage() {
             <Controller
               name="invitationCode"
               control={invitationCodeControl}
-              // cspell:disable-next-line
               render={({ field }) => (
                 <BaseInput
                   {...field}
+                  // cspell:disable-next-line
                   placeholder="例: JJXRUJN6"
                   fullWidth
                   onChange={(e) => field.onChange(e.target.value.toUpperCase())}

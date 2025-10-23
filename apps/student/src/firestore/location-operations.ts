@@ -4,7 +4,7 @@ import { convertDate } from '@/utils/convert-date'
 
 const dateColumns = ['createdAt']
 
-export const createLocation = async (location: Location): Promise<string> => {
+export const createLocation = async (location: Omit<Location, 'id'>): Promise<string> => {
   const locationRef = adminDb.collection('locations').doc()
   await locationRef.set(location)
   return locationRef.id
