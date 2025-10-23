@@ -3,4 +3,5 @@ export type Location = {
   name: string
   address: string
   createdAt: Date
+  userId: string // 作成者のuserId
 }

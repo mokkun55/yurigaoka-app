@@ -4,6 +4,7 @@ import { adminDb, adminAuth } from '@/lib/firebase/admin'
 import type { UserFormValues, InvitationCodeValues } from './page'
 import { Timestamp } from 'firebase-admin/firestore'
 import { cookies } from 'next/headers'
+import { createLocation } from '@/firestore/location-operations'
 
 // TODO ユーザー作成時の処理
 export async function registerUser(registerFormData: UserFormValues & { name: string; uid: string; email: string }) {
@@ -13,18 +14,17 @@ export async function registerUser(registerFormData: UserFormValues & { name: st
     club: registerFormData.club === 'none' ? '' : registerFormData.club,
     roomNumber: registerFormData.roomNumber,
     phoneNumber: registerFormData.emergencyTel,
-    locations: [
-      {
-        name: registerFormData.homeAddressName,
-        address: registerFormData.homeAddressAddress,
-        phoneNumber: registerFormData.emergencyTel,
-        parentName: registerFormData.parentName,
-        createdAt: Timestamp.now(),
-      },
-    ],
   }
 
   await adminDb.collection('users').doc(registerFormData.uid).update(updateData)
+
+  // 新しい構造で住所情報を作成
+  await createLocation({
+    name: registerFormData.homeAddressName,
+    address: registerFormData.homeAddressAddress,
+    createdAt: new Date(),
+    userId: registerFormData.uid,
+  })
 
   // カスタムクレームを更新
   const sessionCookie = (await cookies()).get('__session')?.value

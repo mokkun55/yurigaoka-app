@@ -139,12 +139,14 @@ export default function AbsenceHome() {
   // 送信
   const onSubmit: SubmitHandler<HomecomingFormValues> = async (data) => {
     setIsSubmitting(true)
+
     const parsedData = {
       ...data,
-      destination: JSON.parse(data.destination),
+      destination: typeof data.destination === 'string' ? JSON.parse(data.destination) : data.destination,
     }
+
     try {
-      await submitHomecomingForm(parsedData)
+      await submitHomecomingForm(parsedData, uid ?? '')
       toast.success('提出しました')
       router.push('/')
     } catch (e) {
