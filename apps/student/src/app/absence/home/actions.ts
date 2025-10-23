@@ -12,13 +12,6 @@ export async function getLocations(uid: string): Promise<Location[]> {
 
 // 帰省届を提出
 export async function submitHomecomingForm(data: HomecomingFormValues, uid: string) {
-  // destinationは既にオブジェクトとして渡されている
-  const destination = data.destination as { id: string; name: string; address: string }
-
-  if (!destination.id) {
-    throw new Error('locationIdが取得できませんでした')
-  }
-
   // 受け取ったdataをHomecomingSubmission型に変換
   const parsedData: Omit<HomecomingSubmission, 'id'> = {
     userId: uid,
@@ -26,7 +19,7 @@ export async function submitHomecomingForm(data: HomecomingFormValues, uid: stri
     status: 'pending',
     reason: data.reason || '',
     specialReason: data.specialReason,
-    locationId: destination.id,
+    locationId: data.locationId,
     startDate: new Date(data.startDate),
     endDate: new Date(data.endDate),
     createdAt: new Date(),

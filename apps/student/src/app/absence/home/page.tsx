@@ -47,7 +47,7 @@ const homecomingFormSchema = z
     endDate: z.string().min(1, '終了日を選択してください'),
     departureTime: z.string().min(1, '出発予定時刻を入力してください'),
     returnTime: z.string().min(1, '帰寮予定時刻を入力してください'),
-    destination: z.string().min(1, '帰省先を選択してください'),
+    locationId: z.string().min(1, '帰省先が必要です'),
     reason: z.string().min(1, '理由を入力してください'),
     meal_start: z.enum(['breakfast', 'dinner']).nullable(),
     meal_end: z.enum(['breakfast', 'dinner']).nullable(),
@@ -120,7 +120,7 @@ export default function AbsenceHome() {
       endDate: today,
       departureTime: '',
       returnTime: '',
-      destination: '',
+      locationId: '',
       specialReason: '',
       reason: '',
       meal_start: null,
@@ -140,13 +140,8 @@ export default function AbsenceHome() {
   const onSubmit: SubmitHandler<HomecomingFormValues> = async (data) => {
     setIsSubmitting(true)
 
-    const parsedData = {
-      ...data,
-      destination: typeof data.destination === 'string' ? JSON.parse(data.destination) : data.destination,
-    }
-
     try {
-      await submitHomecomingForm(parsedData, uid ?? '')
+      await submitHomecomingForm(data, uid ?? '')
       toast.success('提出しました')
       router.push('/')
     } catch (e) {
@@ -204,7 +199,7 @@ export default function AbsenceHome() {
           </div>
           <InputLabel label="帰省先">
             <Controller
-              name="destination"
+              name="locationId"
               control={control}
               render={({ field }) => (
                 <BaseSelect
@@ -212,14 +207,14 @@ export default function AbsenceHome() {
                   value={field.value ?? ''}
                   options={locations.map((location) => ({
                     label: location.name,
-                    value: JSON.stringify({ id: location.id, name: location.name, address: location.address }),
+                    value: location.id,
                   }))}
                   placeholder="プリセットから選択してください"
                   fullWidth
                 />
               )}
             />
-            {errors.destination && <div className="text-red-500 text-xs mt-1">{errors.destination.message}</div>}
+            {errors.locationId && <div className="text-red-500 text-xs mt-1">{errors.locationId.message}</div>}
           </InputLabel>
           <InputLabel label="帰省理由">
             <Controller
@@ -300,10 +295,17 @@ export default function AbsenceHome() {
 
           <InputLabel label="帰省先">
             <div className="text-base text-(--sub-text)">
-              ({JSON.parse(formValues.destination).name})
-              <span className="font-normal ml-1 text-(--main-text) text-xl">
-                {JSON.parse(formValues.destination).address}
-              </span>
+              {(() => {
+                const selectedLocation = locations.find((loc) => loc.id === formValues.locationId)
+                return selectedLocation ? (
+                  <>
+                    ({selectedLocation.name})
+                    <span className="font-normal ml-1 text-(--main-text) text-xl">{selectedLocation.address}</span>
+                  </>
+                ) : (
+                  '選択された住所が見つかりません'
+                )
+              })()}
             </div>
           </InputLabel>
 
