@@ -14,9 +14,10 @@ import { submitMealForm } from './actions'
 import dayjs from 'dayjs'
 import weekday from 'dayjs/plugin/weekday'
 import ja from 'dayjs/locale/ja'
-import ConfirmAbsenceDialog from '../_components/ConfirmAbsenceDialog'
 import { formatDateWithWeekday } from '@/utils/dateUtils'
 import { MealCheckboxGroup } from '@/_components/ui/checkbox/checkbox-field/MealCheckboxGroup'
+import LoadingSpinner from '@/_components/ui/loading-spinner'
+import { useFirebaseAuthContext } from '@/providers/AuthProvider'
 dayjs.extend(weekday)
 dayjs.locale(ja)
 
@@ -76,24 +77,12 @@ const mealFormSchema = z
 
 export type MealFormValues = z.infer<typeof mealFormSchema>
 
-function getOneDayMealLabel(breakfast: boolean | undefined, dinner: boolean | undefined): string {
-  if (breakfast && dinner) return '朝食: 欠食 ／ 夕食: 欠食'
-  if (breakfast) return '朝食: 欠食 ／ 夕食: 喫食'
-  if (dinner) return '朝食: 喫食 ／ 夕食: 欠食'
-  return '朝食: 喫食 ／ 夕食: 喫食'
-}
-
-function getMealLabel(meal: 'breakfast' | 'dinner' | null | undefined): string {
-  if (meal === 'breakfast') return '朝食: 欠食 ／ 夕食: 喫食'
-  if (meal === 'dinner') return '朝食: 喫食 ／ 夕食: 欠食'
-  return '朝食: 喫食 ／ 夕食: 喫食'
-}
-
 export default function Meal() {
   const router = useRouter()
   const [formValues, setFormValues] = useState<MealFormValues | undefined>(undefined)
   const [isConfirm, setIsConfirm] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { uid } = useFirebaseAuthContext()
 
   const today = dayjs().format('YYYY-MM-DD')
 
@@ -144,7 +133,7 @@ export default function Meal() {
       }
     }
     try {
-      await submitMealForm(submitData)
+      await submitMealForm(submitData, uid ?? '')
       toast.success('提出しました')
       router.push('/')
     } catch (e) {
@@ -197,8 +186,8 @@ export default function Meal() {
                   value={startMeal}
                   onChange={(val) => setValue('start_meal', val as 'breakfast' | 'dinner' | null)}
                   options={[
-                    { value: 'breakfast', label: '朝食から', name: 'startBreakfast' },
-                    { value: 'dinner', label: '夕食から', name: 'startDinner' },
+                    { value: 'breakfast', label: '朝食から欠食', name: 'startBreakfast' },
+                    { value: 'dinner', label: '夕食から欠食', name: 'startDinner' },
                     { value: null, label: '欠食しない', name: 'startNone' },
                   ]}
                 />
@@ -208,8 +197,8 @@ export default function Meal() {
                   value={endMeal}
                   onChange={(val) => setValue('end_meal', val as 'breakfast' | 'dinner' | null)}
                   options={[
-                    { value: 'breakfast', label: '朝食まで', name: 'endBreakfast' },
-                    { value: 'dinner', label: '夕食まで', name: 'endDinner' },
+                    { value: 'breakfast', label: '朝食まで欠食', name: 'endBreakfast' },
+                    { value: 'dinner', label: '夕食まで欠食', name: 'endDinner' },
                     { value: null, label: '欠食しない', name: 'endNone' },
                   ]}
                 />
@@ -245,44 +234,97 @@ export default function Meal() {
 
   if (isConfirm && formValues) {
     const isOneDay = formValues.startDate === formValues.endDate
-    const periodValue = isOneDay ? (
-      formatDateWithWeekday(formValues.startDate)
-    ) : (
-      <>
-        <span>{formatDateWithWeekday(formValues.startDate)}</span>
-        <span className="mx-2">〜</span>
-        <span>{formatDateWithWeekday(formValues.endDate)}</span>
-      </>
-    )
-    const meals = isOneDay
-      ? [
-          {
-            label: '欠食する食事',
-            value: getOneDayMealLabel(formValues.oneDayBreakfast, formValues.oneDayDinner),
-          },
-        ]
-      : [
-          {
-            label: `開始日（${formatDateWithWeekday(formValues.startDate)}）の食事`,
-            value: getMealLabel(formValues.start_meal),
-          },
-          {
-            label: `終了日（${formatDateWithWeekday(formValues.endDate)}）の食事`,
-            value: getMealLabel(formValues.end_meal),
-          },
-        ]
     return (
-      <ConfirmAbsenceDialog
-        title="入力内容の確認"
-        periodLabel="欠食期間"
-        periodValue={periodValue}
-        meals={meals}
-        reasonLabel="欠食理由"
-        reasonValue={formValues.reason}
-        onSubmit={() => onSubmit(formValues)}
-        onBack={() => setIsConfirm(false)}
-        isSubmitting={isSubmitting}
-      />
+      <div className="bg-white h-full">
+        <div className="p-3 gap-4 flex flex-col">
+          <div className="text-center bg-(--red) rounded-lg px-4 py-3 text-white font-bold text-lg">
+            <p>本当に以下の日時・欠食で大丈夫なのか</p>
+            <p>しっかり確認してください！！</p>
+          </div>
+
+          <InputLabel label="欠食期間">
+            <div className="text-base font-bold">
+              {isOneDay ? (
+                formatDateWithWeekday(formValues.startDate)
+              ) : (
+                <>
+                  {formatDateWithWeekday(formValues.startDate)}
+                  <span className="mx-2">〜</span>
+                  {formatDateWithWeekday(formValues.endDate)}
+                </>
+              )}
+            </div>
+          </InputLabel>
+
+          <InputLabel label="欠食理由">
+            <div className="text-base text-(--main-text)">{formValues.reason}</div>
+          </InputLabel>
+
+          {isOneDay ? (
+            <InputLabel label="欠食する食事">
+              <div>
+                {(() => {
+                  if (formValues.oneDayBreakfast && formValues.oneDayDinner) return '朝食: 欠食 ／ 夕食: 欠食'
+                  if (formValues.oneDayBreakfast) return '朝食: 欠食 ／ 夕食: 喫食'
+                  if (formValues.oneDayDinner) return '朝食: 喫食 ／ 夕食: 欠食'
+                  return '朝食: 喫食 ／ 夕食: 喫食'
+                })()}
+              </div>
+            </InputLabel>
+          ) : (
+            <>
+              <InputLabel label={`開始日（${formatDateWithWeekday(formValues.startDate)}）の食事`}>
+                <div>
+                  {(() => {
+                    if (formValues.start_meal === 'breakfast') return '朝食: 欠食 ／ 夕食: 欠食'
+                    if (formValues.start_meal === 'dinner') return '朝食: 喫食 ／ 夕食: 欠食'
+                    return '朝食: 喫食 ／ 夕食: 喫食'
+                  })()}
+                </div>
+              </InputLabel>
+              <InputLabel label={`終了日（${formatDateWithWeekday(formValues.endDate)}）の食事`}>
+                <div>
+                  {(() => {
+                    if (formValues.end_meal === 'breakfast') return '朝食: 欠食 ／ 夕食: 喫食'
+                    if (formValues.end_meal === 'dinner') return '朝食: 欠食 ／ 夕食: 欠食'
+                    return '朝食: 喫食 ／ 夕食: 喫食'
+                  })()}
+                </div>
+              </InputLabel>
+            </>
+          )}
+
+          <div className="text-center text-xl text-black font-extrabold">
+            <p>上記の内容で問題がなければ、</p>
+            <p>下の「この内容で提出」を押してください</p>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Button
+              className="w-full font-bold"
+              type="submit"
+              disabled={isSubmitting}
+              onClick={() => onSubmit(formValues)}
+            >
+              {isSubmitting ? (
+                <>
+                  <LoadingSpinner /> 提出中...
+                </>
+              ) : (
+                'この内容で提出する'
+              )}
+            </Button>
+            <Button
+              className="w-full font-bold"
+              type="button"
+              variant="destructive"
+              onClick={() => setIsConfirm(false)}
+            >
+              内容を修正する
+            </Button>
+          </div>
+        </div>
+      </div>
     )
   }
   return null
