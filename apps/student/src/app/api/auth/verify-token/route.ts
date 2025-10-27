@@ -44,7 +44,7 @@ export async function PUT(req: NextRequest) {
   // 新しいカスタムクレームを作成
   const newClaims = {
     role: role || currentRole,
-    isRegistered: isRegistered || currentIsRegistered,
+    isRegistered: isRegistered ?? currentIsRegistered,
     uid: currentUid,
   }
 
