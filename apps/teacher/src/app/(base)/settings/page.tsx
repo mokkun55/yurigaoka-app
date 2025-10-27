@@ -3,7 +3,7 @@
 import BaseButton from '@/ui/base-button'
 import { useAuth } from '@/hooks/useAuth'
 import { useEffect, useState } from 'react'
-import { User } from '@supabase/supabase-js'
+import type { User } from 'firebase/auth'
 
 export default function SettingPage() {
   const { getUser, signOut } = useAuth()
@@ -15,13 +15,13 @@ export default function SettingPage() {
       setUser(user)
     }
     fetchUser()
-  }, [])
+  }, [getUser])
 
   return (
     <div>
       <h1>ログイン中のユーザー</h1>
       <p>{user?.email}</p>
-      <p>{user?.user_metadata.name}</p>
+      <p>{user?.displayName}</p>
       <BaseButton onClick={() => signOut()}>ログアウト</BaseButton>
 
       <div style={{ marginTop: '2rem' }}>

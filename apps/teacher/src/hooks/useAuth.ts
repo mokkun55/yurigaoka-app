@@ -1,53 +1,104 @@
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/utils/supabase/client'
+import { auth, googleProvider } from '@/lib/firebase/client'
+import { signInWithPopup, signOut as firebaseSignOut, signInWithEmailAndPassword, type User } from 'firebase/auth'
 
 export function useAuth() {
   const router = useRouter()
-  const supabase = createClient()
 
   const signOut = async () => {
-    await supabase.auth.signOut()
+    await firebaseSignOut(auth)
+    const response = await fetch('/api/auth/session-logout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    if (!response.ok) {
+      throw new Error('ログアウトに失敗しました')
+    }
     router.push('/login')
   }
 
   const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${location.origin}/api/auth/callback`,
-      },
-    })
-    if (error) {
-      return error
+    try {
+      const result = await signInWithPopup(auth, googleProvider)
+      const user = result.user
+      const token = await user.getIdToken(true)
+      const response = await fetch('/api/auth/session-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      })
+      if (!response.ok) {
+        throw new Error('ログインに失敗しました')
+      }
+
+      // 教員の場合は常にホームページにリダイレクト
+      router.push('/home')
+    } catch (error) {
+      console.error(error)
+      return `ログインに失敗しました: ${error}`
     }
   }
 
   const getUser = async () => {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser()
-    if (error) {
-      // エラーが発生した場合はログインしていないとみなす
-      // console.error(error);
+    const user = await auth.currentUser
+    if (!user) {
       return null
     }
-    return user
+    return user as unknown as User
   }
 
   // TODO 後で消す
   const signInWithEmail = async (email: string, password: string) => {
-    await supabase.auth.signInWithPassword({ email, password })
-    router.push('/')
+    try {
+      const result = await signInWithEmailAndPassword(auth, email, password)
+      const user = result.user
+      const token = await user.getIdToken(true)
+      const response = await fetch('/api/auth/session-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      })
+      if (!response.ok) {
+        throw new Error('ログインに失敗しました')
+      }
+
+      // 教員の場合は常にホームページにリダイレクト
+      router.push('/home')
+    } catch (error) {
+      console.error(error)
+      return `ログインに失敗しました: ${error}`
+    }
   }
 
   // TODO 後で消す
   const signInWithStaff = async () => {
-    await supabase.auth.signInWithPassword({
-      email: 'staff@ktc.ac.jp',
-      password: 'staff',
-    })
-    router.push('/')
+    try {
+      const result = await signInWithEmailAndPassword(auth, 'staff@ktc.ac.jp', 'staff')
+      const user = result.user
+      const token = await user.getIdToken(true)
+      const response = await fetch('/api/auth/session-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      })
+      if (!response.ok) {
+        throw new Error('ログインに失敗しました')
+      }
+
+      // 教員の場合は常にホームページにリダイレクト
+      router.push('/home')
+    } catch (error) {
+      console.error(error)
+      return `ログインに失敗しました: ${error}`
+    }
   }
 
   return {
