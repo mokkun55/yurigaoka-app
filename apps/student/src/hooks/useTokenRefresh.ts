@@ -61,7 +61,7 @@ export function useTokenRefresh() {
             const token = await user.getIdToken(true)
 
             // サーバーのセッションCookieを更新
-            await fetch('/api/auth/refreshSession', {
+            await fetch('/api/auth/refresh-session', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
