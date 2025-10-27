@@ -4,6 +4,7 @@ import { HomecomingFormValues } from './page'
 import { postHomecomingSubmission } from '@/firestore/submission-operations'
 import { HomecomingSubmission, Location } from '@yurigaoka-app/common'
 import { fetchLocationsByUser } from '@/firestore/location-operations'
+import { combineDateAndTime } from '@/utils/dateUtils'
 
 // uidからlocationsを取得
 export async function getLocations(uid: string): Promise<Location[]> {
@@ -12,6 +13,10 @@ export async function getLocations(uid: string): Promise<Location[]> {
 
 // 帰省届を提出
 export async function submitHomecomingForm(data: HomecomingFormValues, uid: string) {
+  // 日付と時刻を組み合わせて完全なDateオブジェクトを作成
+  const startDateTime = combineDateAndTime(data.startDate, data.departureTime)
+  const endDateTime = combineDateAndTime(data.endDate, data.returnTime)
+
   // 受け取ったdataをHomecomingSubmission型に変換
   const parsedData: Omit<HomecomingSubmission, 'id'> = {
     userId: uid,
@@ -20,8 +25,8 @@ export async function submitHomecomingForm(data: HomecomingFormValues, uid: stri
     reason: data.reason || '',
     specialReason: data.specialReason,
     locationId: data.locationId,
-    startDate: new Date(data.startDate),
-    endDate: new Date(data.endDate),
+    startDate: startDateTime,
+    endDate: endDateTime,
     createdAt: new Date(),
     mealsOff: generateMealsOffArray(data.startDate, data.endDate, data.meal_start, data.meal_end),
   }

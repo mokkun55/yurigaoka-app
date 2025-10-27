@@ -20,3 +20,16 @@ export function formatDateWithWeekday(dateStr: string): string {
 export function convertFirestoreTimestampToDate(timestamp: FirebaseFirestore.Timestamp): Date {
   return timestamp.toDate()
 }
+
+/**
+ * 日付文字列と時刻文字列を組み合わせて完全なDateオブジェクトを作成する関数
+ * @param dateStr 日付文字列 (例: '2024-01-15')
+ * @param timeStr 時刻文字列 (例: '14:30')
+ * @returns 組み合わせたDateオブジェクト
+ */
+export function combineDateAndTime(dateStr: string, timeStr: string): Date {
+  const date = new Date(dateStr)
+  const [hours, minutes] = timeStr.split(':').map(Number)
+  date.setHours(hours, minutes, 0, 0)
+  return date
+}
