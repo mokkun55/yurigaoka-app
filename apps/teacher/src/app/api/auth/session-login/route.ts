@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { adminAuth } from '@/lib/firebase/admin'
+import { adminAuth, adminDb } from '@/lib/firebase/admin'
 
 // Cookieの有効期限（例: 5日間）
 const MAX_AGE = 60 * 60 * 24 * 5 * 1000
@@ -19,11 +19,19 @@ export async function POST(req: NextRequest) {
       expiresIn: MAX_AGE,
     })
 
-    // 2. セッションCookieからカスタムクレームを取得
+    // 2. セッションCookieを検証してUIDを取得
     const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie)
-    const isRegistered = decodedClaims.isRegistered || false
+    const uid = decodedClaims.uid
 
-    // 3. CookieをHttpOnlyでセキュアに設定
+    if (!uid) {
+      return NextResponse.json({ error: 'UID not found' }, { status: 400 })
+    }
+
+    // 3. Firestoreからユーザー情報を取得
+    const userDoc = await adminDb.collection('users').doc(uid).get()
+    const isRegistered = userDoc.exists ? (userDoc.data()?.isRegistered ?? false) : false
+
+    // 4. CookieをHttpOnlyでセキュアに設定
     ;(await cookies()).set({
       name: SESSION_COOKIE_NAME,
       value: sessionCookie,

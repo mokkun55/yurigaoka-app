@@ -62,7 +62,7 @@ export const fetchStudentsOnHomecoming = async (): Promise<Array<{ user: User; s
   const userIds = [...new Set(activeSubmissions.map((s) => s.userId))]
   const usersSnapshot = await adminDb.collection('users').where(FieldPath.documentId(), 'in', userIds).get()
 
-  const usersMap = new Map(
+  const usersMap = new Map<string, User>(
     usersSnapshot.docs.map((doc) => {
       const data = doc.data()
       const convertedData = convertDate({ ...data }, ['createdAt'])
@@ -71,7 +71,7 @@ export const fetchStudentsOnHomecoming = async (): Promise<Array<{ user: User; s
         {
           id: doc.id,
           ...convertedData,
-        },
+        } as User,
       ]
     })
   )
@@ -79,7 +79,7 @@ export const fetchStudentsOnHomecoming = async (): Promise<Array<{ user: User; s
   return activeSubmissions
     .map(({ submission, userId }) => {
       const user = usersMap.get(userId)
-      if (!user) return null
+      if (!user || user.role !== 'student') return null
       return { user, submission }
     })
     .filter((item): item is { user: User; submission: HomecomingSubmission } => item !== null)

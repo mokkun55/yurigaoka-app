@@ -4,6 +4,8 @@ export type User = {
   name: string
   createdAt: Date
   isDeleted: boolean
+  role: 'student' | 'teacher' | 'manager'
+  isRegistered: boolean
   grade?: string
   class?: string
   club?: string

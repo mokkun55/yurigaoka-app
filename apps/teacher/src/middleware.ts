@@ -36,7 +36,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // 保護しないパス（認証チェックをスキップ）
-  const ignoreUrls = ['/api', '/auth', '/debug', '/error', '/logout']
+  const ignoreUrls = ['/api', '/auth', '/debug', '/error', '/logout', '/login']
   if (ignoreUrls.some((url) => pathname.startsWith(url))) {
     return NextResponse.next()
   }

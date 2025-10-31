@@ -1,7 +1,6 @@
-import { adminAuth } from '@/lib/firebase/admin'
+import { adminAuth, adminDb } from '@/lib/firebase/admin'
 import { cookies } from 'next/headers'
-import { NextRequest, NextResponse } from 'next/server'
-import * as admin from 'firebase-admin'
+import { NextResponse } from 'next/server'
 
 export async function GET() {
   // セッションCookieから取得
@@ -17,38 +16,21 @@ export async function GET() {
   if (!decodedClaims) {
     return NextResponse.json({ error: 'セッションクッキーが無効です' }, { status: 400 })
   }
-  // カスタムクレームを取得
-  const role = decodedClaims.role || '未設定'
-  const isRegistered = decodedClaims.isRegistered || false
-  const uid = decodedClaims.uid || '未設定'
+
+  const uid = decodedClaims.uid
+  if (!uid) {
+    return NextResponse.json({ error: 'UIDが見つかりません' }, { status: 400 })
+  }
+
+  // Firestoreからユーザー情報を取得
+  const userDoc = await adminDb.collection('users').doc(uid).get()
+  if (!userDoc.exists) {
+    return NextResponse.json({ error: 'ユーザードキュメントが見つかりません' }, { status: 404 })
+  }
+
+  const userData = userDoc.data()
+  const role = userData?.role || '未設定'
+  const isRegistered = userData?.isRegistered ?? false
+
   return NextResponse.json({ role, isRegistered, uid }, { status: 200 })
-}
-
-// カスタムクレームを更新
-export async function PUT(req: NextRequest) {
-  const { role, isRegistered } = await req.json()
-  const sessionCookie = (await cookies()).get('__session')?.value
-  if (!sessionCookie) {
-    return NextResponse.json({ error: 'セッションクッキーが見つかりません' }, { status: 400 })
-  }
-  const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie)
-  if (!decodedClaims) {
-    return NextResponse.json({ error: 'セッションクッキーが無効です' }, { status: 400 })
-  }
-
-  // 現在のカスタムクレームを取得
-  const currentRole = decodedClaims.role
-  const currentIsRegistered = decodedClaims.isRegistered
-  const currentUid = decodedClaims.uid
-
-  // 新しいカスタムクレームを作成
-  const newClaims = {
-    role: role || currentRole,
-    isRegistered: isRegistered ?? currentIsRegistered,
-    uid: currentUid,
-  }
-
-  // 新しいカスタムクレームを設定
-  await admin.auth().setCustomUserClaims(currentUid, newClaims)
-  return NextResponse.json({ success: 'カスタムクレームを更新しました' }, { status: 200 })
 }

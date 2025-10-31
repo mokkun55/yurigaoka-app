@@ -72,17 +72,13 @@ export const createUserDocument = functions
         return
       }
 
-      // カスタムクレームを設定
-      await admin.auth().setCustomUserClaims(uid, {
-        role: role,
-        isRegistered: role === 'teacher' ? true : false, // 教員以外は初回登録が必要
-      })
-
       const userData = {
         email: email,
         name: displayName,
         createdAt: FieldValue.serverTimestamp(),
         isDeleted: false,
+        role: role,
+        isRegistered: role === 'teacher' ? true : false, // 教員以外は初回登録が必要
       }
 
       await userDocRef.set(userData)

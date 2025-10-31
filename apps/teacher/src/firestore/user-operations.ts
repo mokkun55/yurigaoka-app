@@ -6,7 +6,7 @@ const dateColumns = ['createdAt']
 
 // すべての生徒を取得
 export const fetchAllStudents = async (): Promise<User[]> => {
-  const snapshot = await adminDb.collection('users').get()
+  const snapshot = await adminDb.collection('users').where('role', '==', 'student').get()
 
   return snapshot.docs.map((doc) => {
     const data = doc.data()

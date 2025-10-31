@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { adminAuth } from '@/lib/firebase/admin'
+import { adminAuth, adminDb } from '@/lib/firebase/admin'
 
 const SESSION_COOKIE_NAME = '__session'
 
@@ -15,9 +15,24 @@ async function verifyToken() {
     // セッションCookieを検証
     const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie)
 
+    const uid = decodedClaims.uid
+    if (!uid) {
+      return NextResponse.json({ error: 'UID not found' }, { status: 401 })
+    }
+
+    // Firestoreからユーザー情報を取得
+    const userDoc = await adminDb.collection('users').doc(uid).get()
+    if (!userDoc.exists) {
+      return NextResponse.json({ error: 'User document not found' }, { status: 404 })
+    }
+
+    const userData = userDoc.data()
+    const role = userData?.role || 'teacher'
+    const isRegistered = userData?.isRegistered ?? false
+
     return NextResponse.json({
-      role: decodedClaims.role || 'teacher',
-      isRegistered: decodedClaims.isRegistered || false,
+      role,
+      isRegistered,
     })
   } catch (error) {
     console.error('Token verification error:', error)

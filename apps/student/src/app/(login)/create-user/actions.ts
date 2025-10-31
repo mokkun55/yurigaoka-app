@@ -1,8 +1,7 @@
 'use server'
 
-import { adminDb, adminAuth } from '@/lib/firebase/admin'
+import { adminDb } from '@/lib/firebase/admin'
 import type { UserFormValues, InvitationCodeValues } from './page'
-import { cookies } from 'next/headers'
 import { createLocation } from '@/firestore/location-operations'
 
 // TODO ユーザー作成時の処理
@@ -15,7 +14,11 @@ export async function registerUser(registerFormData: UserFormValues & { name: st
     phoneNumber: registerFormData.emergencyTel,
   }
 
-  await adminDb.collection('users').doc(registerFormData.uid).update(updateData)
+  // ユーザー情報とisRegisteredを更新
+  await adminDb.collection('users').doc(registerFormData.uid).update({
+    ...updateData,
+    isRegistered: true,
+  })
 
   // 新しい構造で住所情報を作成
   await createLocation({
@@ -23,24 +26,6 @@ export async function registerUser(registerFormData: UserFormValues & { name: st
     address: registerFormData.homeAddressAddress,
     createdAt: new Date(),
     userId: registerFormData.uid,
-  })
-
-  // カスタムクレームを更新
-  const sessionCookie = (await cookies()).get('__session')?.value
-  if (!sessionCookie) {
-    throw new Error('セッションクッキーが見つかりません')
-  }
-
-  const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie)
-  if (!decodedClaims) {
-    throw new Error('セッションクッキーが無効です')
-  }
-
-  // 現在のカスタムクレームを取得して新しいクレームを設定
-  await adminAuth.setCustomUserClaims(decodedClaims.uid, {
-    role: decodedClaims.role || 'student',
-    isRegistered: true,
-    uid: decodedClaims.uid,
   })
 }
 
