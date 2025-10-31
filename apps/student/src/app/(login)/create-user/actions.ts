@@ -15,10 +15,13 @@ export async function registerUser(registerFormData: UserFormValues & { name: st
   }
 
   // ユーザー情報とisRegisteredを更新
-  await adminDb.collection('users').doc(registerFormData.uid).update({
-    ...updateData,
-    isRegistered: true,
-  })
+  await adminDb
+    .collection('users')
+    .doc(registerFormData.uid)
+    .update({
+      ...updateData,
+      isRegistered: true,
+    })
 
   // 新しい構造で住所情報を作成
   await createLocation({
