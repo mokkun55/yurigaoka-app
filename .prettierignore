@@ -1,13 +1,31 @@
-node_modules
-.next
-dist
-build
-out
-.turbo
-*.log
-pnpm-lock.yaml
-package-lock.json
-coverage
-.storybook-static
-*.tsbuildinfo
+# Dependencies
+node_modules/
+.pnpm-store/
 
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Cache directories
+.cache/
+.parcel-cache/
+
+# Environment files
+.env*
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp

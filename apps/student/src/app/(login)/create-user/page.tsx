@@ -12,9 +12,9 @@ import { Button } from '@/_components/ui/button'
 import toast from 'react-hot-toast'
 import { registerUser, verifyInvitationCode } from './actions'
 import { useRouter } from 'next/navigation'
-import Cookies from 'js-cookie'
 import { useTransition } from 'react'
 import LoadingSpinner from '@/_components/ui/loading-spinner'
+import { useFirebaseAuthContext } from '@/providers/AuthProvider'
 
 // Zodスキーマ定義
 const invitationCodeSchema = z.object({
@@ -25,10 +25,6 @@ const invitationCodeSchema = z.object({
 })
 
 const userFormSchema = z.object({
-  name: z
-    .string()
-    .min(1, '氏名を入力してください')
-    .regex(/^[^\s ]+$/, '名字と名前の間に空白を入れずに入力してください'),
   gradeName: z.string().min(1, '学年を選択してください'),
   className: z.string().min(1, 'クラスを選択してください'),
   club: z.enum(['ソフトテニス部', 'サッカー部', 'none']).optional(),
@@ -50,6 +46,7 @@ export type InvitationCodeValues = z.infer<typeof invitationCodeSchema>
 export type UserFormValues = z.infer<typeof userFormSchema>
 
 export default function RegisterPage() {
+  const { currentUser } = useFirebaseAuthContext()
   const router = useRouter()
 
   // 寮生認証のフラグ
@@ -73,7 +70,6 @@ export default function RegisterPage() {
   } = useForm<UserFormValues>({
     resolver: zodResolver(userFormSchema),
     defaultValues: {
-      name: '',
       gradeName: '',
       className: '',
       club: undefined,
@@ -139,9 +135,30 @@ export default function RegisterPage() {
   const onUserFormSubmit: SubmitHandler<UserFormValues> = (data) => {
     startTransition(async () => {
       try {
-        await registerUser(data)
+        // displayNameとemailを追加してregisterUserに渡す
+        const dataWithName = {
+          name: currentUser?.displayName || '',
+          uid: currentUser?.uid || '',
+          email: currentUser?.email || '',
+          ...data,
+        }
+        await registerUser(dataWithName)
+
+        // カスタムクレームが更新されたので、トークンをリフレッシュ
+        if (currentUser) {
+          const newToken = await currentUser.getIdToken(true) // 強制的にトークンをリフレッシュ
+
+          // サーバーのセッションCookieも更新
+          await fetch('/api/auth/refresh-session', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token: newToken }),
+          })
+        }
+
         toast.success('ユーザー情報を登録しました')
-        Cookies.set('is_registered', 'true')
         await router.push('/')
       } catch (error) {
         toast.error('ユーザー情報の登録に失敗しました')
@@ -167,8 +184,15 @@ export default function RegisterPage() {
             <Controller
               name="invitationCode"
               control={invitationCodeControl}
-              // cspell:disable-next-line
-              render={({ field }) => <BaseInput {...field} placeholder="例: JJXRUJN6" fullWidth />}
+              render={({ field }) => (
+                <BaseInput
+                  {...field}
+                  // cspell:disable-next-line
+                  placeholder="例: JJXRUJN6"
+                  fullWidth
+                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                />
+              )}
             />
             {invitationCodeErrors.invitationCode && (
               <p className="text-red-500 text-sm mt-1">{invitationCodeErrors.invitationCode.message}</p>
@@ -195,14 +219,10 @@ export default function RegisterPage() {
           <div className="mb-4">
             <SectionTitle title="あなたの情報" />
             <div className="flex flex-col gap-4">
-              <InputLabel label="氏名">
-                <Controller
-                  name="name"
-                  control={userFormControl}
-                  render={({ field }) => <BaseInput {...field} placeholder="例: 高専太郎" fullWidth />}
-                />
-                {userFormErrors.name && <p className="text-red-500 text-sm mt-1">{userFormErrors.name.message}</p>}
-              </InputLabel>
+              <div className="flex flex-col gap-1">
+                <p className="text-sm text-(--sub-text)">氏名</p>
+                <p className="text-base font-medium">{currentUser?.displayName || '未設定'}</p>
+              </div>
               <InputLabel label="学年・クラス">
                 <div className="flex w-full items-start gap-2">
                   <div className="w-full">

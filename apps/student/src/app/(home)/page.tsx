@@ -2,16 +2,11 @@ import { House, Utensils, History } from 'lucide-react'
 import Link from 'next/link'
 import ApplicationCard from '@/_components/ui/application-card'
 import NoticeList from './_components/notice-list'
-
-export default async function Home() {
-  // TODO: Firebase認証でユーザー情報を取得
-  // const user = await getCurrentUser()
+export default function Home() {
   return (
     <div className="p-4 gap-4 flex flex-col text-center overflow-y-auto">
       <div>
-        {/* TODO 〇〇さん */}
-        <h1 className="text-2xl font-bold">こんにちは</h1>
-        <p className="text-sm text-(--sub-text)">今日も一日頑張りましょう</p>
+        <h1 className="text-2xl font-bold">百合が丘寮アプリ</h1>
       </div>
 
       <div className="flex flex-col justify-center gap-2">

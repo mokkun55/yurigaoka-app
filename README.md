@@ -14,8 +14,8 @@
 
 - **apps/student**: 生徒用アプリケーション (Next.js + Firebase)
 - **apps/teacher**: 教師用アプリケーション (Next.js + Supabase)
+- **packages/common**: 共通の型定義とユーティリティ
 - **packages/functions**: Firebase Functions（両アプリで共有）
-- **packages**: その他の共通パッケージ（将来的に拡張予定）
 
 ## ⚙️ 必要要件
 
@@ -113,8 +113,11 @@ make help
 
 - **[SETUP.md](./SETUP.md)**: 詳細なセットアップ手順
 - **[STRUCTURE.md](./STRUCTURE.md)**: プロジェクト構造の説明
+- **[FIREBASE.md](./FIREBASE.md)**: Firebase設定とデプロイガイド
+- **[COMMANDS.md](./COMMANDS.md)**: よく使うコマンド集
 - **[apps/student/README.md](./apps/student/README.md)**: 生徒用アプリの詳細
 - **[apps/teacher/README.md](./apps/teacher/README.md)**: 教師用アプリの詳細
+- **[packages/common/README.md](./packages/common/README.md)**: 共通型定義パッケージの詳細
 
 ## 🛠 技術スタック
 

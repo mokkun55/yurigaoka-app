@@ -1,10 +1,10 @@
 'use client'
 
-import { Student } from '../../types/student'
+import { User } from '@yurigaoka-app/common'
 import { Table } from '@mantine/core'
 
 type Props = {
-  students: Student[]
+  students: User[]
 }
 
 export default function StudentTable({ students }: Props) {
@@ -16,7 +16,7 @@ export default function StudentTable({ students }: Props) {
         <Table.Td>{student.grade && student.class ? `${student.grade}年${student.class}組` : '-'}</Table.Td>
         <Table.Td>{student.name}</Table.Td>
         <Table.Td style={{ color: isUnaffiliated ? '#999' : 'inherit' }}>{student.club || '-'}</Table.Td>
-        <Table.Td>{student.room_number ? `${student.room_number}号室` : '-'}</Table.Td>
+        <Table.Td>{student.roomNumber ? `${student.roomNumber}号室` : '-'}</Table.Td>
       </Table.Tr>
     )
   })

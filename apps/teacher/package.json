@@ -11,18 +11,20 @@
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "tsc": "tsc --noEmit",
-    "spellcheck": "cspell \"src/**/*.{ts,tsx,md,json}\"",
-    "generate-type": "supabase gen types typescript --project-id zlegzzyoyxusajiwckbs > src/utils/supabase/database.types.ts"
+    "spellcheck": "cspell \"src/**/*.{ts,tsx,md,json}\""
   },
   "dependencies": {
+    "@yurigaoka-app/common": "workspace:*",
     "@hookform/resolvers": "^5.1.1",
     "@mantine/core": "^8.2.1",
     "@mantine/hooks": "^8.2.1",
-    "@supabase/ssr": "^0.7.0",
-    "@supabase/supabase-js": "^2.57.4",
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
+    "firebase": "^12.4.0",
+    "firebase-admin": "^13.5.0",
+    "jose": "^6.1.0",
+    "js-cookie": "^3.0.5",
     "lucide-react": "^0.526.0",
     "next": "15.4.4",
     "react": "19.1.0",
@@ -34,6 +36,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@eslint/js": "^9.32.0",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

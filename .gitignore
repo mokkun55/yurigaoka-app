@@ -52,6 +52,9 @@ firestore-debug.log
 ui-debug.log
 *.cache
 
+# Firebase Emulator data
+apps/student/emulator-data/
+apps/teacher/emulator-data/
+
 # Storybook
 storybook-static/
-

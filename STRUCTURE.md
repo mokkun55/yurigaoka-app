@@ -24,16 +24,14 @@ monorepo/
 │   │   │   ├── lib/          # ライブラリ設定
 │   │   │   │   └── firebase/ # Firebase設定
 │   │   │   └── utils/        # ユーティリティ関数
-│   │   ├── functions/        # Firebase Cloud Functions
+│   │   ├── emulator-data/    # Firebase Emulatorデータ
 │   │   ├── public/           # 静的ファイル
 │   │   ├── scripts/          # スクリプト
-│   │   ├── firebase.json     # Firebase設定
-│   │   ├── firestore.rules   # Firestore セキュリティルール
 │   │   ├── package.json
 │   │   ├── tsconfig.json
 │   │   ├── next.config.ts
 │   │   ├── eslint.config.mjs
-│   │   ├── makefile          # Firebase Emulator用
+│   │   ├── makefile          # 開発用コマンド
 │   │   └── README.md
 │   │
 │   └── teacher/              # 教師用アプリ (Next.js + Supabase)
@@ -52,11 +50,21 @@ monorepo/
 │       ├── eslint.config.mjs
 │       └── README.md
 │
-├── packages/                  # 共通パッケージ（将来的に使用）
+├── packages/                  # 共通パッケージ
+│   ├── functions/            # Firebase Cloud Functions（両アプリで共有）
+│   │   ├── src/              # Functionsのソースコード
+│   │   ├── lib/              # コンパイル済みコード
+│   │   ├── package.json
+│   │   ├── tsconfig.json
+│   │   └── README.md
 │   └── README.md             # パッケージ作成ガイド
 │
 ├── node_modules/             # 依存関係（pnpmワークスペース）
 │
+├── .firebaserc               # Firebaseプロジェクト設定
+├── firebase.json             # Firebase設定
+├── firestore.rules           # Firestore セキュリティルール
+├── firestore.indexes.json    # Firestore インデックス
 ├── .gitignore                # Git除外設定
 ├── .prettierrc.json          # Prettier設定
 ├── .prettierignore           # Prettier除外設定
@@ -106,24 +114,38 @@ monorepo/
 
 ### `/packages`
 
-将来的に共通パッケージを配置するディレクトリです。以下のような共通パッケージを作成することができます：
+共通パッケージを配置するディレクトリです。
+
+#### `/packages/functions` - Firebase Cloud Functions
+
+- **技術スタック**: Firebase Functions v2, Firebase Admin SDK, TypeScript, Node.js 20
+- **共有**: student と teacher の両アプリで使用
+- **主な機能**:
+  - `createUserDocument`: 新しいユーザー作成時の自動処理
+  - ユーザーロール判定（student, teacher, manager）
+  - Firestore へのユーザードキュメント作成
+
+#### 将来的な共通パッケージ例
 
 - `@yurigaoka/shared-ui`: 共通UIコンポーネント
 - `@yurigaoka/shared-utils`: 共通ユーティリティ関数
 - `@yurigaoka/shared-types`: 共通型定義
-- `@yurigaoka/firebase-config`: Firebase設定
 
 ### ルートディレクトリの主要ファイル
 
-| ファイル              | 説明                                                        |
-| --------------------- | ----------------------------------------------------------- |
-| `pnpm-workspace.yaml` | pnpmワークスペースの設定                                    |
-| `package.json`        | ルートのpackage.json（共通スクリプトと共通devDependencies） |
-| `tsconfig.base.json`  | 共通TypeScript設定（各アプリで拡張）                        |
-| `.prettierrc.json`    | コードフォーマット設定                                      |
-| `lefthook.yml`        | Git hooks設定（コミット前のLint/Format）                    |
-| `Makefile`            | 便利なコマンド集                                            |
-| `cspell.json`         | スペルチェック設定                                          |
+| ファイル                 | 説明                                                        |
+| ------------------------ | ----------------------------------------------------------- |
+| `.firebaserc`            | Firebaseプロジェクト設定                                    |
+| `firebase.json`          | Firebase設定（Functions、Firestore、Emulator）              |
+| `firestore.rules`        | Firestore セキュリティルール                                |
+| `firestore.indexes.json` | Firestore インデックス設定                                  |
+| `pnpm-workspace.yaml`    | pnpmワークスペースの設定                                    |
+| `package.json`           | ルートのpackage.json（共通スクリプトと共通devDependencies） |
+| `tsconfig.base.json`     | 共通TypeScript設定（各アプリで拡張）                        |
+| `.prettierrc.json`       | コードフォーマット設定                                      |
+| `lefthook.yml`           | Git hooks設定（コミット前のLint/Format）                    |
+| `Makefile`               | 便利なコマンド集                                            |
+| `cspell.json`            | スペルチェック設定                                          |
 
 ## ワークスペース間の依存関係
 

@@ -20,10 +20,6 @@ export const Homecoming: StoryHome = {
       startDate: new Date('2025/01/01 18:00'),
       endDate: new Date('2025/01/10 20:00'),
     },
-    homecoming: {
-      id: '1',
-      place: '実家',
-    },
     meal: {
       startDate: {
         morning: true,

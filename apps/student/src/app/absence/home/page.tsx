@@ -10,17 +10,15 @@ import { useState, useEffect } from 'react'
 import { DateInput } from '@/_components/ui/input/date-input'
 import { TimeInput } from '@/_components/ui/input/time-input'
 import { submitHomecomingForm } from './actions'
-import fetchHomeList from '../hooks/use-fetch-home-list'
-// TODO: Firebaseに移行後、型定義を更新
-type Database = any
 import LoadingSpinner from '@/_components/ui/loading-spinner'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
 import { formatDateWithWeekday } from '@/utils/dateUtils'
 import { MealCheckboxGroup } from '@/_components/ui/checkbox/checkbox-field/MealCheckboxGroup'
-
-// TODO 平日は帰らせないなどの仕組みも追加する
+import { Location } from '@yurigaoka-app/common'
+import { useFirebaseAuthContext } from '@/providers/AuthProvider'
+import { getLocations } from './actions'
 
 // 門限時刻を変数で定義
 const LIMIT_MORNING = '07:39'
@@ -49,7 +47,7 @@ const homecomingFormSchema = z
     endDate: z.string().min(1, '終了日を選択してください'),
     departureTime: z.string().min(1, '出発予定時刻を入力してください'),
     returnTime: z.string().min(1, '帰寮予定時刻を入力してください'),
-    destination: z.string().min(1, '帰省先を選択してください'),
+    locationId: z.string().min(1, '帰省先が必要です'),
     reason: z.string().min(1, '理由を入力してください'),
     meal_start: z.enum(['breakfast', 'dinner']).nullable(),
     meal_end: z.enum(['breakfast', 'dinner']).nullable(),
@@ -91,18 +89,21 @@ export type HomecomingFormValues = z.infer<typeof homecomingFormSchema>
 
 export default function AbsenceHome() {
   const router = useRouter()
-  const [homes, setHomes] = useState<Database['public']['Tables']['homes']['Row'][]>([])
   const [formValues, setFormValues] = useState<HomecomingFormValues | undefined>(undefined)
   const [isConfirm, setIsConfirm] = useState<boolean>(false)
+  const [locations, setLocations] = useState<Location[]>([])
+  const { uid } = useFirebaseAuthContext()
 
   useEffect(() => {
-    const fetchHomes = async () => {
-      const data = await fetchHomeList()
-      setHomes(data || [])
+    if (!uid) {
+      return
     }
-
-    fetchHomes()
-  }, [])
+    const fetchLocations = async () => {
+      const data = await getLocations(uid)
+      setLocations(data || [])
+    }
+    fetchLocations()
+  }, [uid])
 
   const today = dayjs().format('YYYY-MM-DD')
 
@@ -119,7 +120,7 @@ export default function AbsenceHome() {
       endDate: today,
       departureTime: '',
       returnTime: '',
-      destination: '',
+      locationId: '',
       specialReason: '',
       reason: '',
       meal_start: null,
@@ -138,12 +139,9 @@ export default function AbsenceHome() {
   // 送信
   const onSubmit: SubmitHandler<HomecomingFormValues> = async (data) => {
     setIsSubmitting(true)
-    const parsedData = {
-      ...data,
-      destination: JSON.parse(data.destination),
-    }
+
     try {
-      await submitHomecomingForm(parsedData)
+      await submitHomecomingForm(data, uid ?? '')
       toast.success('提出しました')
       router.push('/')
     } catch (e) {
@@ -201,22 +199,22 @@ export default function AbsenceHome() {
           </div>
           <InputLabel label="帰省先">
             <Controller
-              name="destination"
+              name="locationId"
               control={control}
               render={({ field }) => (
                 <BaseSelect
                   {...field}
                   value={field.value ?? ''}
-                  options={homes.map((home) => ({
-                    label: home.name,
-                    value: JSON.stringify({ name: home.name, address: home.address }),
+                  options={locations.map((location) => ({
+                    label: location.name,
+                    value: location.id,
                   }))}
                   placeholder="プリセットから選択してください"
                   fullWidth
                 />
               )}
             />
-            {errors.destination && <div className="text-red-500 text-xs mt-1">{errors.destination.message}</div>}
+            {errors.locationId && <div className="text-red-500 text-xs mt-1">{errors.locationId.message}</div>}
           </InputLabel>
           <InputLabel label="帰省理由">
             <Controller
@@ -297,10 +295,17 @@ export default function AbsenceHome() {
 
           <InputLabel label="帰省先">
             <div className="text-base text-(--sub-text)">
-              ({JSON.parse(formValues.destination).name})
-              <span className="font-normal ml-1 text-(--main-text) text-xl">
-                {JSON.parse(formValues.destination).address}
-              </span>
+              {(() => {
+                const selectedLocation = locations.find((loc) => loc.id === formValues.locationId)
+                return selectedLocation ? (
+                  <>
+                    ({selectedLocation.name})
+                    <span className="font-normal ml-1 text-(--main-text) text-xl">{selectedLocation.address}</span>
+                  </>
+                ) : (
+                  '選択された住所が見つかりません'
+                )
+              })()}
             </div>
           </InputLabel>
 
