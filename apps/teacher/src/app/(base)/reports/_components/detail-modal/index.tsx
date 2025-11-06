@@ -1,3 +1,5 @@
+'use client'
+
 import styles from './styles.module.css'
 import { Report } from '../../_type/report'
 import dayjs from '@/libs/dayjs'
@@ -8,6 +10,8 @@ import MealAbsenceInfo from '@/ui/meal-absence-info'
 import BaseButton from '@/ui/base-button'
 import BaseTextarea from '@/ui/base-textarea'
 import { useState } from 'react'
+import { approveSubmission, rejectSubmission } from '../../actions'
+import { useRouter } from 'next/navigation'
 
 type Props = {
   report: Report
@@ -17,32 +21,6 @@ type Props = {
 const reportTypeMap = {
   homecoming: '帰省・欠食届',
   meal: '欠食届のみ',
-}
-
-// TODO 後で動的に取得
-const homecomingInfoMock = {
-  startDate: new Date('2025-01-01'),
-  endDate: new Date('2025-01-02'),
-  homeName: '実家',
-  address: '大阪府大阪市大阪区1-1-1',
-  phoneNumber: '090-1234-5678',
-  reason: '家族の用事',
-  specialReason: '祖母の体調不良のため',
-  // 帰省の場合欠食もするのでここで管理
-  meals: {
-    startMeal: [false, false],
-    endMeal: [false, false],
-  },
-}
-
-const mealAbsenceInfoMock = {
-  startDate: new Date('2025-01-01'),
-  endDate: new Date('2025-01-02'),
-  meals: {
-    startMeal: [false, false],
-    endMeal: [false, false],
-  },
-  reason: '家族の用事',
 }
 
 export default function DetailModal({ report, onClose }: Props) {
@@ -88,15 +66,39 @@ export default function DetailModal({ report, onClose }: Props) {
         )}
 
         {/* 帰省情報 */}
-        {report.type === 'homecoming' && <HomecomingInfo {...homecomingInfoMock} />}
+        {report.type === 'homecoming' &&
+          report.startDate &&
+          report.endDate &&
+          report.homeName &&
+          report.address &&
+          report.phoneNumber &&
+          report.reason && (
+            <HomecomingInfo
+              startDate={report.startDate}
+              endDate={report.endDate}
+              homeName={report.homeName}
+              address={report.address}
+              phoneNumber={report.phoneNumber}
+              reason={report.reason}
+              specialReason={report.specialReason}
+              meals={report.meals}
+            />
+          )}
 
         {/* 欠食情報 */}
-        {report.type === 'meal' && <MealAbsenceInfo {...mealAbsenceInfoMock} />}
+        {report.type === 'meal' && report.startDate && report.endDate && report.reason && (
+          <MealAbsenceInfo
+            startDate={report.startDate}
+            endDate={report.endDate}
+            meals={report.meals || { startMeal: [false, false], endMeal: [false, false] }}
+            reason={report.reason}
+          />
+        )}
 
         {/* 承認UI (申請中の場合) */}
         {report.status === 'pending' && (
           <>
-            <ApprovedUI />
+            <ApprovedUI report={report} onClose={onClose} />
           </>
         )}
 
@@ -111,13 +113,47 @@ export default function DetailModal({ report, onClose }: Props) {
 }
 
 // 承認UI
-const ApprovedUI = () => {
+type ApprovedUIProps = {
+  report: Report
+  onClose: () => void
+}
+
+const ApprovedUI = ({ report, onClose }: ApprovedUIProps) => {
+  const router = useRouter()
   const [comment, setComment] = useState('')
-  const handleReject = () => {
-    console.log('差し戻す')
+  const [loading, setLoading] = useState(false)
+
+  const handleReject = async () => {
+    if (!comment.trim()) {
+      alert('差し戻し理由を入力してください')
+      return
+    }
+
+    setLoading(true)
+    try {
+      await rejectSubmission(report.id, comment)
+      router.refresh()
+      onClose()
+    } catch (error) {
+      console.error('Failed to reject submission:', error)
+      alert('差し戻しに失敗しました')
+    } finally {
+      setLoading(false)
+    }
   }
-  const handleApprove = () => {
-    console.log('承認する')
+
+  const handleApprove = async () => {
+    setLoading(true)
+    try {
+      await approveSubmission(report.id)
+      router.refresh()
+      onClose()
+    } catch (error) {
+      console.error('Failed to approve submission:', error)
+      alert('承認に失敗しました')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -129,10 +165,10 @@ const ApprovedUI = () => {
         placeholder="コメントを入力してください"
       />
       <div className={styles.buttonArea}>
-        <BaseButton onClick={handleReject} variant="secondary">
+        <BaseButton onClick={handleReject} variant="secondary" idDisabled={loading}>
           差し戻す
         </BaseButton>
-        <BaseButton onClick={handleApprove} variant="primary">
+        <BaseButton onClick={handleApprove} variant="primary" idDisabled={loading}>
           承認する
         </BaseButton>
       </div>
