@@ -1,25 +1,51 @@
 'use client'
 
 import styles from './styles.module.css'
-import { useState } from 'react'
-import Status from './_components/status'
-import DateSelect from './_components/date-select'
+import { useState, useEffect } from 'react'
 import { SegmentedControl } from '@mantine/core'
-import ListView from './_components/list-view'
-import CardView from './_components/card-view'
+import MonthSelect from './_components/month-select'
+import TableView from './_components/table-view'
+import { getHomecomingData, StudentWithHomecoming } from './actions'
 
 export default function OnLeavePage() {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
-  const [mode, setMode] = useState<'list' | 'card'>('list')
+  const now = new Date()
+  const [year, setYear] = useState(now.getFullYear())
+  const [month, setMonth] = useState(now.getMonth() + 1)
+  const [mode, setMode] = useState<'table' | 'list' | 'card'>('table')
+  const [students, setStudents] = useState<StudentWithHomecoming[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true)
+      try {
+        const data = await getHomecomingData(year, month)
+        setStudents(data)
+      } catch (error) {
+        console.error('Failed to load homecoming data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [year, month])
+
+  const handleYearMonthChange = (newYear: number, newMonth: number) => {
+    setYear(newYear)
+    setMonth(newMonth)
+  }
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <DateSelect selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
-        <Status selectedDate={selectedDate} />
+        <MonthSelect year={year} month={month} onYearMonthChange={handleYearMonthChange} />
       </div>
       <SegmentedControl
         data={[
+          {
+            label: 'テーブル表示',
+            value: 'table',
+          },
           {
             label: '一覧表示',
             value: 'list',
@@ -30,13 +56,18 @@ export default function OnLeavePage() {
           },
         ]}
         value={mode}
-        onChange={(value) => setMode(value as 'list' | 'card')}
+        onChange={(value) => setMode(value as 'table' | 'list' | 'card')}
         classNames={{ label: styles.label }}
         color="var(--main-blue)"
       />
       <div className={styles.content}>
-        {mode === 'list' && <ListView />}
-        {mode === 'card' && <CardView />}
+        {loading ? (
+          <div>読み込み中...</div>
+        ) : mode === 'table' ? (
+          <TableView students={students} year={year} month={month} />
+        ) : (
+          <div>他の表示モードは今後実装予定</div>
+        )}
       </div>
     </div>
   )

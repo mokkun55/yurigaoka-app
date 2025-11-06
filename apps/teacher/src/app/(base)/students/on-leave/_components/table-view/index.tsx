@@ -1,0 +1,180 @@
+'use client'
+
+import { StudentWithHomecoming, StudentsByGrade, getLocationById } from '../../actions'
+import { isDateInHomecomingRange, groupStudentsByGrade } from '../../utils'
+import styles from './styles.module.css'
+import { useMemo, useState } from 'react'
+import DetailModal from '@/app/(base)/reports/_components/detail-modal'
+import { Report } from '@/app/(base)/reports/_type/report'
+import { HomecomingSubmission, Location } from '@yurigaoka-app/common'
+import { convertMealsOffToMeals } from '@/utils/submissionUtils'
+import BaseModal from '@/ui/base-modal'
+
+type Props = {
+  students: StudentWithHomecoming[]
+  year: number
+  month: number
+}
+
+const dayNames = ['日', '月', '火', '水', '木', '金', '土']
+
+/**
+ * HomecomingSubmissionをReport型に変換
+ */
+function convertToReport(
+  submission: HomecomingSubmission,
+  user: { name?: string; grade?: string; class?: string; phoneNumber?: string },
+  location: Location | null
+): Report {
+  const meals = convertMealsOffToMeals(submission.mealsOff)
+
+  return {
+    id: submission.id,
+    name: user.name || '',
+    grade: parseInt(user.grade?.match(/\d+/)?.[0] || '0'),
+    class: user.class || '',
+    type: 'homecoming',
+    createdAt: submission.createdAt instanceof Date ? submission.createdAt : new Date(submission.createdAt),
+    status: submission.status,
+    rejectReason: submission.rejectReason,
+    startDate: submission.startDate instanceof Date ? submission.startDate : new Date(submission.startDate),
+    endDate: submission.endDate instanceof Date ? submission.endDate : new Date(submission.endDate),
+    homeName: location?.name || '',
+    address: location?.address || '',
+    phoneNumber: user.phoneNumber || '',
+    reason: submission.reason,
+    specialReason: submission.specialReason,
+    meals: {
+      startMeal: meals.startMeal,
+      endMeal: meals.endMeal,
+    },
+  }
+}
+
+function GradeTable({ gradeGroup, year, month }: { gradeGroup: StudentsByGrade; year: number; month: number }) {
+  const { grade, students } = gradeGroup
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  // 指定された月の日付リストを生成
+  const dates = useMemo(() => {
+    const lastDay = new Date(year, month, 0)
+    const days: Date[] = []
+
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      days.push(new Date(year, month - 1, day))
+    }
+
+    return days
+  }, [year, month])
+
+  // 日付が日曜日かどうか
+  const isSunday = (date: Date) => date.getDay() === 0
+
+  // 日付セルをクリックした時の処理
+  const handleDateCellClick = async (date: Date, studentData: StudentWithHomecoming) => {
+    // その日付を含む帰省申請を見つける
+    const targetSubmission = studentData.homecomingSubmissions.find((submission) => {
+      const startDate = submission.startDate instanceof Date ? submission.startDate : new Date(submission.startDate)
+      const endDate = submission.endDate instanceof Date ? submission.endDate : new Date(submission.endDate)
+
+      const checkDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+      const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate())
+      const end = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate())
+
+      return checkDate >= start && checkDate <= end
+    })
+
+    if (!targetSubmission) return
+
+    // Location情報を取得
+    const location = await getLocationById(targetSubmission.locationId)
+
+    // Report型に変換してモーダルを表示
+    const report = convertToReport(targetSubmission, studentData.user, location)
+    setSelectedReport(report)
+    setIsModalOpen(true)
+  }
+
+  return (
+    <>
+      <div className={styles.gradeTableContainer}>
+        <h2 className={styles.gradeTitle}>{grade}</h2>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
+              {/* 月表示行 */}
+              <tr>
+                <th className={styles.monthHeader}></th>
+                <th colSpan={3} className={styles.monthHeader}>
+                  {month}月
+                </th>
+                {dates.map((date) => (
+                  <th key={date.getTime()} className={styles.dateHeader}>
+                    {date.getDate()}
+                  </th>
+                ))}
+              </tr>
+              {/* 列ヘッダー行 */}
+              <tr>
+                <th className={styles.labelHeader}></th>
+                <th className={styles.labelHeader}>名前</th>
+                <th className={styles.labelHeader}>部活</th>
+                <th className={styles.labelHeader}>部屋番号</th>
+                {dates.map((date) => (
+                  <th key={date.getTime()} className={`${styles.dayHeader} ${isSunday(date) ? styles.sunday : ''}`}>
+                    {dayNames[date.getDay()]}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {students.map((studentData, index) => {
+                const { user, homecomingSubmissions } = studentData
+
+                return (
+                  <tr key={user.id} className={styles.studentRow}>
+                    <td className={styles.numberCell}>{index + 1}</td>
+                    <td className={styles.nameCell}>{user.name}</td>
+                    <td className={styles.clubCell}>{user.club || ''}</td>
+                    <td className={styles.roomCell}>{user.roomNumber || ''}</td>
+                    {dates.map((date) => {
+                      const isHomecoming = isDateInHomecomingRange(date, homecomingSubmissions)
+                      return (
+                        <td
+                          key={date.getTime()}
+                          className={`${styles.dateCell} ${isHomecoming ? styles.homecoming : styles.empty} ${isHomecoming ? styles.clickable : ''}`}
+                          onClick={() => isHomecoming && handleDateCellClick(date, studentData)}
+                        >
+                          {isHomecoming ? '' : <span className={styles.dot}>・</span>}
+                        </td>
+                      )
+                    })}
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <BaseModal opened={isModalOpen} onClose={() => setIsModalOpen(false)} size="xl">
+        {selectedReport && <DetailModal report={selectedReport} onClose={() => setIsModalOpen(false)} />}
+      </BaseModal>
+    </>
+  )
+}
+
+export default function TableView({ students, year, month }: Props) {
+  // 学年ごとにグループ化
+  const gradeGroups = useMemo(() => {
+    return groupStudentsByGrade(students)
+  }, [students])
+
+  return (
+    <div className={styles.container}>
+      {gradeGroups.map((gradeGroup) => (
+        <GradeTable key={gradeGroup.grade} gradeGroup={gradeGroup} year={year} month={month} />
+      ))}
+    </div>
+  )
+}
