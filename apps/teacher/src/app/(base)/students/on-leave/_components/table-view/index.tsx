@@ -1,9 +1,9 @@
 'use client'
 
 import { StudentWithHomecoming, StudentsByGrade, getLocationById } from '../../actions'
-import { isDateInHomecomingRange, groupStudentsByGrade } from '../../utils'
+import { groupStudentsByGrade, isMorningRollCallHomecoming, isEveningRollCallHomecoming } from '../../utils'
 import styles from './styles.module.css'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, Fragment } from 'react'
 import DetailModal from '@/app/(base)/reports/_components/detail-modal'
 import { Report } from '@/app/(base)/reports/_type/report'
 import { HomecomingSubmission, Location } from '@yurigaoka-app/common'
@@ -110,21 +110,38 @@ function GradeTable({ gradeGroup, year, month }: { gradeGroup: StudentsByGrade; 
                   {month}月
                 </th>
                 {dates.map((date) => (
-                  <th key={date.getTime()} className={styles.dateHeader}>
+                  <th key={date.getTime()} colSpan={2} className={styles.dateHeader}>
                     {date.getDate()}
                   </th>
                 ))}
               </tr>
-              {/* 列ヘッダー行 */}
+              {/* 列ヘッダー行（曜日） */}
               <tr>
                 <th className={styles.labelHeader}></th>
                 <th className={styles.labelHeader}>名前</th>
                 <th className={styles.labelHeader}>部活</th>
                 <th className={styles.labelHeader}>部屋番号</th>
                 {dates.map((date) => (
-                  <th key={date.getTime()} className={`${styles.dayHeader} ${isSunday(date) ? styles.sunday : ''}`}>
+                  <th
+                    key={date.getTime()}
+                    colSpan={2}
+                    className={`${styles.dayHeader} ${isSunday(date) ? styles.sunday : ''}`}
+                  >
                     {dayNames[date.getDay()]}
                   </th>
+                ))}
+              </tr>
+              {/* 点呼時間ヘッダー行 */}
+              <tr>
+                <th className={styles.labelHeader}></th>
+                <th className={styles.labelHeader}></th>
+                <th className={styles.labelHeader}></th>
+                <th className={styles.labelHeader}></th>
+                {dates.map((date) => (
+                  <Fragment key={date.getTime()}>
+                    <th className={`${styles.rollCallHeader} ${isSunday(date) ? styles.sunday : ''}`}>朝</th>
+                    <th className={`${styles.rollCallHeader} ${isSunday(date) ? styles.sunday : ''}`}>夜</th>
+                  </Fragment>
                 ))}
               </tr>
             </thead>
@@ -139,15 +156,28 @@ function GradeTable({ gradeGroup, year, month }: { gradeGroup: StudentsByGrade; 
                     <td className={styles.clubCell}>{user.club || ''}</td>
                     <td className={styles.roomCell}>{user.roomNumber || ''}</td>
                     {dates.map((date) => {
-                      const isHomecoming = isDateInHomecomingRange(date, homecomingSubmissions)
+                      // 朝点呼（7:30）と夜点呼（20:30）の時点での帰省状態を判定
+                      // 帰省中（不在）の場合はtrue、在室の場合はfalse
+                      const morningRollCall = isMorningRollCallHomecoming(date, homecomingSubmissions)
+                      const eveningRollCall = isEveningRollCallHomecoming(date, homecomingSubmissions)
+
                       return (
-                        <td
-                          key={date.getTime()}
-                          className={`${styles.dateCell} ${isHomecoming ? styles.homecoming : styles.empty} ${isHomecoming ? styles.clickable : ''}`}
-                          onClick={() => isHomecoming && handleDateCellClick(date, studentData)}
-                        >
-                          {isHomecoming ? '' : <span className={styles.dot}>・</span>}
-                        </td>
+                        <Fragment key={date.getTime()}>
+                          {/* 朝点呼セル */}
+                          <td
+                            className={`${styles.rollCallCell} ${morningRollCall ? styles.present : styles.empty} ${morningRollCall ? styles.clickable : ''}`}
+                            onClick={() => morningRollCall && handleDateCellClick(date, studentData)}
+                          >
+                            {morningRollCall ? '' : <span className={styles.dot}>・</span>}
+                          </td>
+                          {/* 夜点呼セル */}
+                          <td
+                            className={`${styles.rollCallCell} ${eveningRollCall ? styles.present : styles.empty} ${eveningRollCall ? styles.clickable : ''}`}
+                            onClick={() => eveningRollCall && handleDateCellClick(date, studentData)}
+                          >
+                            {eveningRollCall ? '' : <span className={styles.dot}>・</span>}
+                          </td>
+                        </Fragment>
                       )
                     })}
                   </tr>

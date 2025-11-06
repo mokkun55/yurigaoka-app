@@ -39,27 +39,27 @@ export default function OnLeavePage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <MonthSelect year={year} month={month} onYearMonthChange={handleYearMonthChange} />
+        <SegmentedControl
+          data={[
+            {
+              label: 'テーブル表示',
+              value: 'table',
+            },
+            {
+              label: '一覧表示',
+              value: 'list',
+            },
+            {
+              label: 'カード表示',
+              value: 'card',
+            },
+          ]}
+          value={mode}
+          onChange={(value) => setMode(value as 'table' | 'list' | 'card')}
+          classNames={{ label: styles.label }}
+          color="var(--main-blue)"
+        />
       </div>
-      <SegmentedControl
-        data={[
-          {
-            label: 'テーブル表示',
-            value: 'table',
-          },
-          {
-            label: '一覧表示',
-            value: 'list',
-          },
-          {
-            label: 'カード表示',
-            value: 'card',
-          },
-        ]}
-        value={mode}
-        onChange={(value) => setMode(value as 'table' | 'list' | 'card')}
-        classNames={{ label: styles.label }}
-        color="var(--main-blue)"
-      />
       <div className={styles.content}>
         {loading ? (
           <div>読み込み中...</div>
