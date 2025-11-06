@@ -51,6 +51,8 @@ export default function RegisterPage() {
 
   // 寮生認証のフラグ
   const [isAuth, setIsAuth] = useState(false)
+  // 検証済みの招待コードを保存
+  const [verifiedInvitationCode, setVerifiedInvitationCode] = useState<string | null>(null)
 
   const {
     control: invitationCodeControl,
@@ -120,10 +122,15 @@ export default function RegisterPage() {
       try {
         await verifyInvitationCode(data)
         toast.success('認証に成功しました')
+        setVerifiedInvitationCode(data.invitationCode)
         setIsAuth(true)
       } catch (error: unknown) {
-        if (error instanceof Error && error.message === '招待コードが無効です') {
-          toast.error(error.message)
+        if (error instanceof Error) {
+          if (error.message === '招待コードが無効です' || error.message === '招待コードの有効期限が切れています') {
+            toast.error(error.message)
+          } else {
+            toast.error('認証に失敗しました')
+          }
         } else {
           toast.error('認証に失敗しました')
         }
@@ -135,11 +142,12 @@ export default function RegisterPage() {
   const onUserFormSubmit: SubmitHandler<UserFormValues> = (data) => {
     startTransition(async () => {
       try {
-        // displayNameとemailを追加してregisterUserに渡す
+        // displayNameとemail、招待コードを追加してregisterUserに渡す
         const dataWithName = {
           name: currentUser?.displayName || '',
           uid: currentUser?.uid || '',
           email: currentUser?.email || '',
+          invitationCode: verifiedInvitationCode || undefined,
           ...data,
         }
         await registerUser(dataWithName)
