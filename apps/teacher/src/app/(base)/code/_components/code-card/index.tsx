@@ -10,9 +10,10 @@ type Props = {
   code: string
   usageCount: number
   limitDate: Date
+  onDelete: () => Promise<void>
 }
 
-export default function CodeCard({ code, usageCount, limitDate }: Props) {
+export default function CodeCard({ code, usageCount, limitDate, onDelete }: Props) {
   const [modalOpened, { open: modalOpen, close: modalClose }] = useDisclosure(false)
 
   const handleCopy = () => {
@@ -22,13 +23,12 @@ export default function CodeCard({ code, usageCount, limitDate }: Props) {
 
   const handleDelete = async () => {
     try {
-      // 削除処理
+      await onDelete()
       modalClose()
     } catch (e) {
       console.error(e)
       toast.error('コード「' + code + '」を削除できませんでした')
     }
-    toast.success('コード「' + code + '」を削除しました')
   }
 
   return (

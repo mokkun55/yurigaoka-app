@@ -3,9 +3,12 @@
 import { adminDb } from '@/lib/firebase/admin'
 import type { UserFormValues, InvitationCodeValues } from './page'
 import { createLocation } from '@/firestore/location-operations'
+import { fetchInviteCodeByCode, incrementInviteCodeUsage } from '@/firestore/invite-code-operations'
 
 // TODO ユーザー作成時の処理
-export async function registerUser(registerFormData: UserFormValues & { name: string; uid: string; email: string }) {
+export async function registerUser(
+  registerFormData: UserFormValues & { name: string; uid: string; email: string; invitationCode?: string }
+) {
   const updateData = {
     grade: registerFormData.gradeName,
     class: registerFormData.className,
@@ -30,18 +33,44 @@ export async function registerUser(registerFormData: UserFormValues & { name: st
     createdAt: new Date(),
     userId: registerFormData.uid,
   })
+
+  // 招待コードが提供されている場合、使用回数を更新
+  if (registerFormData.invitationCode) {
+    try {
+      const inviteCode = await fetchInviteCodeByCode(registerFormData.invitationCode)
+      if (inviteCode) {
+        await incrementInviteCodeUsage(inviteCode.id)
+      }
+    } catch (error) {
+      // 招待コードの更新に失敗しても、ユーザー登録は続行
+      console.error('招待コードの使用回数更新に失敗しました:', error)
+    }
+  }
 }
 
 export async function verifyInvitationCode(inviteFormData: InvitationCodeValues) {
   console.log('サーバーで受け取った招待コード:', inviteFormData)
   try {
-    // 検証
-    const snapshot = await adminDb.collection('inviteCodes').where('code', '==', inviteFormData.invitationCode).get()
-    if (snapshot.empty) {
+    // 招待コードを取得
+    const inviteCode = await fetchInviteCodeByCode(inviteFormData.invitationCode)
+
+    if (!inviteCode) {
       throw new Error('招待コードが無効です')
     }
+
+    // 有効期限のチェック
+    const now = new Date()
+    if (inviteCode.limitDate <= now) {
+      throw new Error('招待コードの有効期限が切れています')
+    }
+
+    // 検証成功
+    return { success: true, codeId: inviteCode.id }
   } catch (error) {
     console.error('招待コードの検証に失敗しました', error)
-    throw error
+    if (error instanceof Error) {
+      throw error
+    }
+    throw new Error('招待コードの検証に失敗しました')
   }
 }
