@@ -17,6 +17,7 @@ export interface HomecomingSubmission {
   status: SubmissionStatus
   reason: string
   specialReason?: string
+  rejectReason?: string
   locationId: string
   createdAt: Date
   mealsOff: MealOff[]
@@ -28,6 +29,7 @@ export interface MealAbsenceSubmission {
   status: SubmissionStatus
   reason: string
   specialReason?: string
+  rejectReason?: string
   createdAt: Date
   mealsOff: MealOff[]
 }
