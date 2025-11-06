@@ -1,0 +1,12 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.date {
+  font-size: 18px;
+  font-weight: bold;
+  min-width: 120px;
+  text-align: center;
+}
