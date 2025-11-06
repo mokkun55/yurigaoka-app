@@ -1,7 +1,14 @@
-import { Submission, MealAbsenceSubmission, HomecomingSubmission, MealOff, User } from '@yurigaoka-app/common'
+import {
+  Submission,
+  MealAbsenceSubmission,
+  HomecomingSubmission,
+  MealOff,
+  User,
+  SubmissionStatus,
+} from '@yurigaoka-app/common'
 import { adminDb } from '@/lib/firebase/admin'
 import { convertDate, convertFirestoreTimestampToDate } from '@/utils/dateUtils'
-import { FieldPath } from 'firebase-admin/firestore'
+import { FieldPath, FieldValue } from 'firebase-admin/firestore'
 
 // すべての申請を取得
 export const fetchAllSubmissions = async (): Promise<Submission[]> => {
@@ -34,6 +41,28 @@ export const fetchSubmissionById = async (submissionId: string): Promise<Submiss
   }
 
   return convertSubmissionDocument(doc.data()!, doc.id)
+}
+
+// 申請のステータスを変更
+export const updateSubmissionStatus = async (
+  submissionId: string,
+  status: SubmissionStatus,
+  rejectReason?: string
+): Promise<void> => {
+  const updateData: { status: SubmissionStatus; rejectReason?: string | FirebaseFirestore.FieldValue } = {
+    status,
+  }
+
+  if (status === 'rejected') {
+    if (rejectReason) {
+      updateData.rejectReason = rejectReason
+    }
+  } else {
+    // 他のステータスに変更する場合は rejectReason を削除
+    updateData.rejectReason = FieldValue.delete()
+  }
+
+  await adminDb.collection('submissions').doc(submissionId).update(updateData)
 }
 
 // 帰省中の生徒を取得
@@ -94,6 +123,7 @@ function convertSubmissionDocument(data: Record<string, unknown>, id: string): S
     status: data.status as Submission['status'],
     reason: data.reason as string,
     specialReason: data.specialReason as string | undefined,
+    rejectReason: data.rejectReason as string | undefined,
     createdAt: convertFirestoreTimestampToDate(data.createdAt as FirebaseFirestore.Timestamp),
     mealsOff:
       (data.mealsOff as Array<{ date: FirebaseFirestore.Timestamp; breakfast: boolean; dinner: boolean }>)?.map(

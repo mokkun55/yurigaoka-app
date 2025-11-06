@@ -1,4 +1,31 @@
 import type { SubmissionWithUserAndLocation } from '@/app/(base)/home/actions'
+import { MealOff } from '@yurigaoka-app/common'
+
+/**
+ * mealsOffからmeals形式に変換するヘルパー関数
+ */
+export function convertMealsOffToMeals(mealsOff: MealOff[]) {
+  if (mealsOff.length === 0) {
+    return {
+      startMeal: [false, false],
+      endMeal: [false, false],
+    }
+  }
+
+  const sortedMealsOff = [...mealsOff].sort((a, b) => {
+    const dateA = a.date instanceof Date ? a.date : new Date(a.date)
+    const dateB = b.date instanceof Date ? b.date : new Date(b.date)
+    return dateA.getTime() - dateB.getTime()
+  })
+
+  const firstMeal = sortedMealsOff[0]
+  const lastMeal = sortedMealsOff[sortedMealsOff.length - 1]
+
+  return {
+    startMeal: [firstMeal.breakfast, firstMeal.dinner],
+    endMeal: [lastMeal.breakfast, lastMeal.dinner],
+  }
+}
 
 /**
  * SubmissionWithUserAndLocationをReportコンポーネントが期待する形式に変換

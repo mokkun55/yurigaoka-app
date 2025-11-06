@@ -7,6 +7,8 @@ import dayjs from '@/libs/dayjs'
 import BaseButton from '@/ui/base-button'
 import BaseTextarea from '@/ui/base-textarea'
 import { useState } from 'react'
+import { approveSubmission, rejectSubmission } from '../../actions'
+import { useRouter } from 'next/navigation'
 
 type Props = {
   items: {
@@ -30,7 +32,46 @@ type Props = {
 }
 
 export default function Report({ items }: Props) {
-  const [comment, setComment] = useState('')
+  const router = useRouter()
+  const [comments, setComments] = useState<Record<string, string>>({})
+  const [loading, setLoading] = useState<Record<string, boolean>>({})
+
+  const handleCommentChange = (itemId: string, value: string) => {
+    setComments((prev) => ({ ...prev, [itemId]: value }))
+  }
+
+  const handleApprove = async (itemId: string) => {
+    setLoading((prev) => ({ ...prev, [itemId]: true }))
+    try {
+      await approveSubmission(itemId)
+      router.refresh()
+    } catch (error) {
+      console.error('Failed to approve submission:', error)
+      alert('承認に失敗しました')
+    } finally {
+      setLoading((prev) => ({ ...prev, [itemId]: false }))
+    }
+  }
+
+  const handleReject = async (itemId: string) => {
+    const comment = comments[itemId] || ''
+    if (!comment.trim()) {
+      alert('差し戻し理由を入力してください')
+      return
+    }
+
+    setLoading((prev) => ({ ...prev, [itemId]: true }))
+    try {
+      await rejectSubmission(itemId, comment)
+      router.refresh()
+    } catch (error) {
+      console.error('Failed to reject submission:', error)
+      alert('差し戻しに失敗しました')
+    } finally {
+      setLoading((prev) => ({ ...prev, [itemId]: false }))
+    }
+  }
+
   const listItems = items.map((item) => {
     return (
       <MantineAccordion.Item value={item.id} key={item.id}>
@@ -107,19 +148,28 @@ export default function Report({ items }: Props) {
             </div>
 
             {/* コメント */}
-            {/* TODO テキストエリア */}
             <div className={styles.commentArea}>
               <BaseTextarea
                 label="コメント(差し戻す場合は必須)"
-                value={comment}
-                onChange={(value) => setComment(value)}
+                value={comments[item.id] || ''}
+                onChange={(value) => handleCommentChange(item.id, value)}
                 placeholder="コメントを入力してください"
               />
               <div className={styles.buttonArea}>
-                <BaseButton onClick={() => {}} variant="secondary" width="100px">
+                <BaseButton
+                  onClick={() => handleReject(item.id)}
+                  variant="secondary"
+                  width="100px"
+                  idDisabled={loading[item.id]}
+                >
                   差し戻す
                 </BaseButton>
-                <BaseButton onClick={() => {}} variant="primary" width="100px">
+                <BaseButton
+                  onClick={() => handleApprove(item.id)}
+                  variant="primary"
+                  width="100px"
+                  idDisabled={loading[item.id]}
+                >
                   承認する
                 </BaseButton>
               </div>

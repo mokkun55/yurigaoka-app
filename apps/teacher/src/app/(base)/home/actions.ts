@@ -1,10 +1,11 @@
 'use server'
 
-import { fetchPendingSubmissions } from '@/firestore/submission-operations'
+import { fetchPendingSubmissions, updateSubmissionStatus } from '@/firestore/submission-operations'
 import { fetchStudentById } from '@/firestore/user-operations'
 import { HomecomingSubmission, MealAbsenceSubmission, Location } from '@yurigaoka-app/common'
 import { adminDb } from '@/lib/firebase/admin'
 import { convertDate } from '@/utils/dateUtils'
+import { revalidatePath } from 'next/cache'
 
 export type SubmissionWithUserAndLocation =
   | (HomecomingSubmission & {
@@ -69,6 +70,31 @@ export async function getPendingSubmissions(): Promise<SubmissionWithUserAndLoca
     return submissionsWithUser as SubmissionWithUserAndLocation[]
   } catch (error) {
     console.error('Failed to fetch pending submissions:', error)
+    throw error
+  }
+}
+
+// 申請を承認
+export async function approveSubmission(submissionId: string): Promise<void> {
+  try {
+    await updateSubmissionStatus(submissionId, 'approved')
+    revalidatePath('/')
+  } catch (error) {
+    console.error('Failed to approve submission:', error)
+    throw error
+  }
+}
+
+// 申請を差し戻し
+export async function rejectSubmission(submissionId: string, rejectReason: string): Promise<void> {
+  try {
+    if (!rejectReason.trim()) {
+      throw new Error('差し戻し理由は必須です')
+    }
+    await updateSubmissionStatus(submissionId, 'rejected', rejectReason)
+    revalidatePath('/')
+  } catch (error) {
+    console.error('Failed to reject submission:', error)
     throw error
   }
 }
