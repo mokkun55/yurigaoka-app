@@ -1,0 +1,161 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.controlsLeft {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.rangeLabel {
+  font-weight: 600;
+}
+
+.feedback {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.feedbackSuccess {
+  background-color: #ecfdf3;
+  color: #027a48;
+}
+
+.feedbackError {
+  background-color: #fef3f2;
+  color: #b42318;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.columnHeader {
+  font-weight: 600;
+  text-align: center;
+}
+
+.cell {
+  border-radius: 12px;
+  padding: 12px;
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.cellEmpty {
+  color: #94a3b8;
+}
+
+.cellDraft {
+  border-color: #60a5fa;
+  background-color: #eff6ff;
+}
+
+.cellConflict {
+  border-color: #f97316;
+}
+
+.studentName {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.studentMeta {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.conflictNote {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #f97316;
+}
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.editorHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.editorList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.editorRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+}
+
+.editorRowDirty {
+  border-color: #60a5fa;
+  background-color: #f8fbff;
+}
+
+.editorInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.editorName {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.editorMeta {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.editorControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.controlSelect {
+  width: 88px;
+}
+

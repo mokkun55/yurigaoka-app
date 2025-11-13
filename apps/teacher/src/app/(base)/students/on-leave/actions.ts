@@ -1,10 +1,12 @@
 'use server'
 
-import { fetchAllStudents } from '@/firestore/user-operations'
+import { fetchAllStudents, updateStudentLineupPosition } from '@/firestore/user-operations'
+import type { LineupPosition } from '@/firestore/user-operations'
 import { fetchAllSubmissions } from '@/firestore/submission-operations'
 import { User, HomecomingSubmission, Location } from '@yurigaoka-app/common'
 import { adminDb } from '@/lib/firebase/admin'
 import { convertDate } from '@/utils/dateUtils'
+import { LINEUP_MAX_COLUMNS, LINEUP_MAX_ROWS } from './constants'
 
 export type StudentWithHomecoming = {
   user: User
@@ -82,6 +84,21 @@ export async function getHomecomingData(year: number, month: number): Promise<St
     console.error('Failed to fetch homecoming data:', error)
     throw error
   }
+}
+
+export async function setStudentLineupPosition(studentId: string, position: LineupPosition | null): Promise<void> {
+  if (position) {
+    const { column, row } = position
+
+    if (!Number.isInteger(column) || column < 1 || column > LINEUP_MAX_COLUMNS) {
+      throw new Error('列番号が不正です。')
+    }
+    if (!Number.isInteger(row) || row < 1 || row > LINEUP_MAX_ROWS) {
+      throw new Error('行番号が不正です。')
+    }
+  }
+
+  await updateStudentLineupPosition(studentId, position)
 }
 
 /**

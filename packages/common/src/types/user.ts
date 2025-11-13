@@ -11,4 +11,8 @@ export type User = {
   club?: string
   roomNumber?: string
   phoneNumber?: string
+  lineupPosition?: {
+    column: number
+    row: number
+  }
 }

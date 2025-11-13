@@ -1,6 +1,7 @@
 import { adminDb } from '@/lib/firebase/admin'
 import { convertDate } from '@/utils/dateUtils'
 import { User } from '@yurigaoka-app/common'
+import { FieldValue } from 'firebase-admin/firestore'
 
 const dateColumns = ['createdAt']
 
@@ -15,6 +16,29 @@ export const fetchAllStudents = async (): Promise<User[]> => {
       id: doc.id,
       ...convertedData,
     } as User
+  })
+}
+
+export type LineupPosition = NonNullable<User['lineupPosition']>
+
+export const updateStudentLineupPosition = async (
+  studentId: string,
+  position: LineupPosition | null
+): Promise<void> => {
+  const docRef = adminDb.collection('users').doc(studentId)
+
+  if (position) {
+    await docRef.update({
+      lineupPosition: {
+        column: position.column,
+        row: position.row,
+      },
+    })
+    return
+  }
+
+  await docRef.update({
+    lineupPosition: FieldValue.delete(),
   })
 }
 
