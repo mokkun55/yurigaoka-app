@@ -35,6 +35,22 @@ export function isMorningRollCallHomecoming(date: Date, submissions: HomecomingS
 }
 
 /**
+ * 指定された日時（7:40）の時点で帰省中かどうかをチェック
+ */
+export function isMorningRollCallHomecomingAt740(date: Date, submissions: HomecomingSubmission[]): boolean {
+  // その日の7:40の時刻を作成
+  const morningTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 7, 40, 0)
+
+  return submissions.some((submission) => {
+    const startDate = submission.startDate instanceof Date ? submission.startDate : new Date(submission.startDate)
+    const endDate = submission.endDate instanceof Date ? submission.endDate : new Date(submission.endDate)
+
+    // 7:40の時点で帰省開始時刻以降なら帰省中（不在）
+    return morningTime >= startDate && morningTime <= endDate
+  })
+}
+
+/**
  * 指定された日時（20:30）の時点で帰省中かどうかをチェック
  */
 export function isEveningRollCallHomecoming(date: Date, submissions: HomecomingSubmission[]): boolean {

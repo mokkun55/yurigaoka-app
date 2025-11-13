@@ -4,6 +4,7 @@ import styles from './styles.module.css'
 import { useState, useEffect } from 'react'
 import { SegmentedControl } from '@mantine/core'
 import MonthSelect from './_components/month-select'
+import DateSelect from './_components/date-select'
 import TableView from './_components/table-view'
 import LineupView from './_components/lineup-view'
 import LineupEditView from './_components/lineup-edit-view'
@@ -13,6 +14,7 @@ export default function OnLeavePage() {
   const now = new Date()
   const [year, setYear] = useState(now.getFullYear())
   const [month, setMonth] = useState(now.getMonth() + 1)
+  const [selectedDate, setSelectedDate] = useState(now)
   const [mode, setMode] = useState<'table' | 'list' | 'edit'>('table')
   const [students, setStudents] = useState<StudentWithHomecoming[]>([])
   const [loading, setLoading] = useState(true)
@@ -40,7 +42,11 @@ export default function OnLeavePage() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <MonthSelect year={year} month={month} onYearMonthChange={handleYearMonthChange} />
+        {mode === 'table' ? (
+          <MonthSelect year={year} month={month} onYearMonthChange={handleYearMonthChange} />
+        ) : (
+          <DateSelect selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
+        )}
         <SegmentedControl
           data={[
             {
@@ -67,7 +73,7 @@ export default function OnLeavePage() {
             return <TableView students={students} year={year} month={month} />
           }
           if (mode === 'list') {
-            return <LineupView students={students} onEditClick={() => setMode('edit')} />
+            return <LineupView students={students} selectedDate={selectedDate} onEditClick={() => setMode('edit')} />
           }
           if (mode === 'edit') {
             return (

@@ -4,6 +4,17 @@
   gap: 24px;
 }
 
+.rollCallSelector {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.rollCallLabel {
+  font-size: 16px;
+  font-weight: 700;
+}
+
 .controls {
   display: flex;
   justify-content: space-between;
@@ -80,6 +91,25 @@
 
 .cellConflict {
   border-color: #f97316;
+}
+
+.cellHomecoming {
+  background-color: #fee2e2;
+  border-color: #fca5a5;
+}
+
+.cellWithdrawn {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #ffffff;
+}
+
+.cellWithdrawn .studentName {
+  color: #ffffff;
+}
+
+.cellWithdrawn .studentMeta {
+  color: #d1d5db;
 }
 
 .studentName {

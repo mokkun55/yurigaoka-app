@@ -21,7 +21,7 @@ export default function DateSelect({ selectedDate, setSelectedDate }: Props) {
       <BaseButton variant="icon" width="32px" height="32px" onClick={handlePreviousDate}>
         <ChevronLeft strokeWidth={4} size={32} color="var(--sub-text)" />
       </BaseButton>
-      <p className={styles.date}>{dayjs(selectedDate).format('YYYY/MM/DD (ddd)')}</p>
+      <p className={styles.date}>{dayjs(selectedDate).format('YYYY年M月D日(ddd)')}</p>
       <BaseButton variant="icon" width="32px" height="32px" onClick={handleNextDate}>
         <ChevronRight strokeWidth={4} size={32} color="var(--sub-text)" />
       </BaseButton>
