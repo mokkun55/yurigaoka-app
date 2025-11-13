@@ -88,8 +88,6 @@ export default function LineupEditView({ students, onClose }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const [isPending, startTransition] = useTransition()
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_savingStudentId, setSavingStudentId] = useState<string | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -150,8 +148,15 @@ export default function LineupEditView({ students, onClose }: Props) {
       const row = parseInt(rowStr, 10)
 
       if (!isNaN(column) && !isNaN(row)) {
+        const key = `${column}-${row}`
+        const existingStudent = positionMap.get(key)
+
+        // 既に他の学生がいる場合は、ドロップを拒否
+        if (existingStudent && existingStudent.user.id !== studentId) {
+          return
+        }
+
         updateStudentPosition(studentId, { column, row })
-        handleSave(studentId, { column, row })
       }
       return
     }
@@ -159,7 +164,6 @@ export default function LineupEditView({ students, onClose }: Props) {
     // 未設定エリアにドロップされた場合
     if (overId === 'unassigned-area') {
       updateStudentPosition(studentId, null)
-      handleSave(studentId, null)
       return
     }
   }
@@ -175,22 +179,7 @@ export default function LineupEditView({ students, onClose }: Props) {
     )
   }
 
-  const handleSave = async (studentId: string, position: LineupPosition | null) => {
-    setSavingStudentId(studentId)
-    startTransition(async () => {
-      try {
-        await setStudentLineupPosition(studentId, position)
-        setFeedback({ type: 'success', message: '並び順を更新しました。' })
-      } catch (error) {
-        console.error(error)
-        setFeedback({ type: 'error', message: '並び順の更新に失敗しました。' })
-      } finally {
-        setSavingStudentId(null)
-      }
-    })
-  }
-
-  const handleSaveAll = async () => {
+  const handleSaveAll = async (closeAfterSave = false) => {
     const changes = localStudents.filter(({ student, position }) => {
       const original = students.find((s) => s.user.id === student.user.id)
       const originalPosition = original?.user.lineupPosition ?? null
@@ -202,9 +191,33 @@ export default function LineupEditView({ students, onClose }: Props) {
       )
     })
 
-    for (const { student, position } of changes) {
-      await handleSave(student.user.id, position)
+    if (changes.length === 0) {
+      if (closeAfterSave && onClose) {
+        onClose()
+      } else {
+        setFeedback({ type: 'success', message: '変更はありません。' })
+      }
+      return
     }
+
+    startTransition(async () => {
+      try {
+        for (const { student, position } of changes) {
+          await setStudentLineupPosition(student.user.id, position)
+        }
+        setFeedback({ type: 'success', message: 'すべての変更を保存しました。' })
+        if (closeAfterSave && onClose) {
+          onClose()
+        }
+      } catch (error) {
+        console.error(error)
+        setFeedback({ type: 'error', message: '保存に失敗しました。' })
+      }
+    })
+  }
+
+  const handleSaveAndClose = async () => {
+    await handleSaveAll(true)
   }
 
   const activeStudent = activeId ? localStudents.find(({ student }) => student.user.id === activeId) : null
@@ -217,8 +230,8 @@ export default function LineupEditView({ students, onClose }: Props) {
             並び順変更
           </Text>
           {onClose && (
-            <Button variant="subtle" onClick={onClose}>
-              閉じる
+            <Button variant="subtle" onClick={handleSaveAndClose} loading={isPending} disabled={isPending}>
+              保存して閉じる
             </Button>
           )}
         </div>
@@ -279,7 +292,7 @@ export default function LineupEditView({ students, onClose }: Props) {
         </div>
 
         <div className={styles.footer}>
-          <Button onClick={handleSaveAll} loading={isPending} disabled={isPending}>
+          <Button onClick={() => handleSaveAll(false)} loading={isPending} disabled={isPending}>
             すべての変更を保存
           </Button>
         </div>
