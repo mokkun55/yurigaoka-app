@@ -71,6 +71,16 @@ function GradeTable({ gradeGroup, year, month }: { gradeGroup: StudentsByGrade; 
   // 日付が日曜日かどうか
   const isSunday = (date: Date) => date.getDay() === 0
 
+  // 今日の日付かどうか
+  const isToday = (date: Date) => {
+    const today = new Date()
+    return (
+      date.getFullYear() === today.getFullYear() &&
+      date.getMonth() === today.getMonth() &&
+      date.getDate() === today.getDate()
+    )
+  }
+
   // 日付セルをクリックした時の処理
   const handleDateCellClick = async (date: Date, studentData: StudentWithHomecoming) => {
     // その日付を含む帰省申請を見つける
@@ -110,7 +120,11 @@ function GradeTable({ gradeGroup, year, month }: { gradeGroup: StudentsByGrade; 
                   {month}月
                 </th>
                 {dates.map((date) => (
-                  <th key={date.getTime()} colSpan={2} className={styles.dateHeader}>
+                  <th
+                    key={date.getTime()}
+                    colSpan={2}
+                    className={`${styles.dateHeader} ${isToday(date) ? styles.today : ''}`}
+                  >
                     {date.getDate()}
                   </th>
                 ))}
@@ -125,7 +139,7 @@ function GradeTable({ gradeGroup, year, month }: { gradeGroup: StudentsByGrade; 
                   <th
                     key={date.getTime()}
                     colSpan={2}
-                    className={`${styles.dayHeader} ${isSunday(date) ? styles.sunday : ''}`}
+                    className={`${styles.dayHeader} ${isSunday(date) ? styles.sunday : ''} ${isToday(date) ? styles.today : ''}`}
                   >
                     {dayNames[date.getDay()]}
                   </th>
@@ -139,8 +153,16 @@ function GradeTable({ gradeGroup, year, month }: { gradeGroup: StudentsByGrade; 
                 <th className={styles.labelHeader}></th>
                 {dates.map((date) => (
                   <Fragment key={date.getTime()}>
-                    <th className={`${styles.rollCallHeader} ${isSunday(date) ? styles.sunday : ''}`}>朝</th>
-                    <th className={`${styles.rollCallHeader} ${isSunday(date) ? styles.sunday : ''}`}>夜</th>
+                    <th
+                      className={`${styles.rollCallHeader} ${isSunday(date) ? styles.sunday : ''} ${isToday(date) ? styles.today : ''}`}
+                    >
+                      朝
+                    </th>
+                    <th
+                      className={`${styles.rollCallHeader} ${isSunday(date) ? styles.sunday : ''} ${isToday(date) ? styles.today : ''}`}
+                    >
+                      夜
+                    </th>
                   </Fragment>
                 ))}
               </tr>
@@ -161,18 +183,20 @@ function GradeTable({ gradeGroup, year, month }: { gradeGroup: StudentsByGrade; 
                       const morningRollCall = isMorningRollCallHomecoming(date, homecomingSubmissions)
                       const eveningRollCall = isEveningRollCallHomecoming(date, homecomingSubmissions)
 
+                      const isTodayDate = isToday(date)
+
                       return (
                         <Fragment key={date.getTime()}>
                           {/* 朝点呼セル */}
                           <td
-                            className={`${styles.rollCallCell} ${morningRollCall ? styles.present : styles.empty} ${morningRollCall ? styles.clickable : ''}`}
+                            className={`${styles.rollCallCell} ${morningRollCall ? styles.present : styles.empty} ${morningRollCall ? styles.clickable : ''} ${isTodayDate ? styles.today : ''}`}
                             onClick={() => morningRollCall && handleDateCellClick(date, studentData)}
                           >
                             {morningRollCall ? '' : <span className={styles.dot}>・</span>}
                           </td>
                           {/* 夜点呼セル */}
                           <td
-                            className={`${styles.rollCallCell} ${eveningRollCall ? styles.present : styles.empty} ${eveningRollCall ? styles.clickable : ''}`}
+                            className={`${styles.rollCallCell} ${eveningRollCall ? styles.present : styles.empty} ${eveningRollCall ? styles.clickable : ''} ${isTodayDate ? styles.today : ''}`}
                             onClick={() => eveningRollCall && handleDateCellClick(date, studentData)}
                           >
                             {eveningRollCall ? '' : <span className={styles.dot}>・</span>}
