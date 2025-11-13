@@ -88,6 +88,7 @@ export default function LineupEditView({ students, onClose }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const [isPending, startTransition] = useTransition()
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_savingStudentId, setSavingStudentId] = useState<string | null>(null)
 
   const sensors = useSensors(
