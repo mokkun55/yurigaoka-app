@@ -14,10 +14,13 @@
     "spellcheck": "cspell \"src/**/*.{ts,tsx,md,json}\""
   },
   "dependencies": {
-    "@yurigaoka-app/common": "workspace:*",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^5.1.1",
     "@mantine/core": "^8.2.1",
     "@mantine/hooks": "^8.2.1",
+    "@yurigaoka-app/common": "workspace:*",
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
