@@ -17,11 +17,25 @@ if (!getApps().length) {
     process.env.FIRESTORE_EMULATOR_HOST = 'localhost:8080'
   } else {
     // 本番環境では正式な認証情報を使用
+    const projectId = process.env.FIREBASE_PROJECT_ID
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY
+
+    if (!projectId) {
+      throw new Error('環境変数 FIREBASE_PROJECT_ID が設定されていません')
+    }
+    if (!clientEmail) {
+      throw new Error('環境変数 FIREBASE_CLIENT_EMAIL が設定されていません')
+    }
+    if (!privateKey) {
+      throw new Error('環境変数 FIREBASE_PRIVATE_KEY が設定されていません')
+    }
+
     initializeApp({
       credential: cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        projectId,
+        clientEmail,
+        privateKey: privateKey.replace(/\\n/g, '\n'),
       }),
     })
   }

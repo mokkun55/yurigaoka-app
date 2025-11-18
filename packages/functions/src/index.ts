@@ -25,6 +25,7 @@ async function determineUserRole(email: string, db: admin.firestore.Firestore): 
   }
 
   // whitelistにない場合、学生メールアドレスのパターンをチェック
+  // 環境変数は関数実行時に取得
   const studentEmailPatternStr = process.env.STUDENT_EMAIL_PATTERN
   if (!studentEmailPatternStr) {
     throw new Error('環境変数 STUDENT_EMAIL_PATTERN が設定されていません')

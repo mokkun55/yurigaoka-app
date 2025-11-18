@@ -2,14 +2,18 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { adminAuth } from '@/lib/firebase/admin'
 
-const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME
-if (!SESSION_COOKIE_NAME) {
-  throw new Error('環境変数 SESSION_COOKIE_NAME が設定されていません')
+function getSessionCookieName(): string {
+  const cookieName = process.env.SESSION_COOKIE_NAME
+  if (!cookieName) {
+    throw new Error('環境変数 SESSION_COOKIE_NAME が設定されていません')
+  }
+  return cookieName
 }
-const cookieName: string = SESSION_COOKIE_NAME
 
 export async function POST() {
   try {
+    // 環境変数を取得（遅延評価）
+    const cookieName = getSessionCookieName()
     const cookieStore = await cookies()
     const sessionCookie = cookieStore.get(cookieName)?.value
 
