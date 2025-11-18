@@ -50,7 +50,11 @@ export default function SettingPage() {
 
     setIsSaving(true)
     try {
-      await saveSystemConfig(config)
+      const configToSave: SystemConfig = {
+        ...config,
+        curfewTime: calculateCurfewTime(config.rollCallTime),
+      }
+      await saveSystemConfig(configToSave)
       toast.success('設定を保存しました')
       setHasChanges(false)
     } catch (error) {
@@ -61,11 +65,35 @@ export default function SettingPage() {
     }
   }
 
+  // 点呼時刻から門限時刻を計算（1分前）
+  const calculateCurfewTime = (rollCallTime: SystemConfig['rollCallTime']): SystemConfig['curfewTime'] => {
+    const calculateOneMinuteBefore = (timeString: string): string => {
+      const [hours, minutes] = timeString.split(':').map(Number)
+      const date = new Date()
+      date.setHours(hours, minutes - 1, 0, 0)
+      const h = String(date.getHours()).padStart(2, '0')
+      const m = String(date.getMinutes()).padStart(2, '0')
+      return `${h}:${m}`
+    }
+
+    return {
+      morning: calculateOneMinuteBefore(rollCallTime.morning),
+      night: calculateOneMinuteBefore(rollCallTime.evening),
+    }
+  }
+
   const handleConfigChange = (newConfig: Partial<SystemConfig>) => {
     if (!config) return
     setConfig((prev) => {
       if (!prev) return null
-      return { ...prev, ...newConfig }
+
+      // rollCallTimeが変更された場合、curfewTimeも自動計算
+      const updatedConfig = { ...prev, ...newConfig }
+      if (newConfig.rollCallTime) {
+        updatedConfig.curfewTime = calculateCurfewTime(updatedConfig.rollCallTime)
+      }
+
+      return updatedConfig
     })
     setHasChanges(true)
   }
