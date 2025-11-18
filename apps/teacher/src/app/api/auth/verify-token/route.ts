@@ -2,11 +2,15 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { adminAuth, adminDb } from '@/lib/firebase/admin'
 
-const SESSION_COOKIE_NAME = '__session'
+const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME
+if (!SESSION_COOKIE_NAME) {
+  throw new Error('環境変数 SESSION_COOKIE_NAME が設定されていません')
+}
+const cookieName: string = SESSION_COOKIE_NAME
 
 async function verifyToken() {
   try {
-    const sessionCookie = (await cookies()).get(SESSION_COOKIE_NAME)?.value
+    const sessionCookie = (await cookies()).get(cookieName)?.value
 
     if (!sessionCookie) {
       return NextResponse.json({ error: 'No session cookie found' }, { status: 401 })

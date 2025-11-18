@@ -2,12 +2,16 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { adminAuth } from '@/lib/firebase/admin'
 
-const SESSION_COOKIE_NAME = '__session'
+const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME
+if (!SESSION_COOKIE_NAME) {
+  throw new Error('環境変数 SESSION_COOKIE_NAME が設定されていません')
+}
+const cookieName: string = SESSION_COOKIE_NAME
 
 export async function POST() {
   try {
     const cookieStore = await cookies()
-    const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)?.value
+    const sessionCookie = cookieStore.get(cookieName)?.value
 
     // セッションCookieが存在する場合、Firebase側でも無効化
     if (sessionCookie) {
@@ -24,7 +28,7 @@ export async function POST() {
 
     // セッションCookieを削除
     cookieStore.set({
-      name: SESSION_COOKIE_NAME,
+      name: cookieName,
       value: '',
       maxAge: 0, // 即座に削除
       httpOnly: true,

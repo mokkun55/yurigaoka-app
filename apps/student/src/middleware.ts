@@ -1,11 +1,18 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
+const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME
+if (!SESSION_COOKIE_NAME) {
+  throw new Error('環境変数 SESSION_COOKIE_NAME が設定されていません')
+}
+// 型を確定させる（上記のチェックにより、ここでは string 型であることが保証されている）
+const cookieName: string = SESSION_COOKIE_NAME
+
 /**
  * セッションCookieを検証してカスタムクレームを取得
  */
 async function verifySession(request: NextRequest) {
   try {
-    const sessionCookie = request.cookies.get('__session')?.value
+    const sessionCookie = request.cookies.get(cookieName)?.value
 
     if (!sessionCookie) {
       return null

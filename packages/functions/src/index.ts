@@ -24,8 +24,12 @@ async function determineUserRole(email: string, db: admin.firestore.Firestore): 
     return role
   }
 
-  // whitelistにない場合、学生メールアドレスのパターンをチェック: gXXXXX@ktc.ac.jp
-  const studentEmailPattern = /^g\d{5}@ktc\.ac\.jp$/i
+  // whitelistにない場合、学生メールアドレスのパターンをチェック
+  const studentEmailPatternStr = process.env.STUDENT_EMAIL_PATTERN
+  if (!studentEmailPatternStr) {
+    throw new Error('環境変数 STUDENT_EMAIL_PATTERN が設定されていません')
+  }
+  const studentEmailPattern = new RegExp(studentEmailPatternStr, 'i')
 
   if (studentEmailPattern.test(email)) {
     return 'student'
