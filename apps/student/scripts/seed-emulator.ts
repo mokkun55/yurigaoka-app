@@ -65,7 +65,35 @@ async function seedData() {
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     })
 
-    console.log(`  ✓ 招待コードデータを3件追加しました`)
+    console.log(`  ✓ 招待コードデータを2件追加しました`)
+
+    // === systemConfigコレクションのシードデータ ===
+    console.log('⚙️  systemConfigコレクションにデータを追加中...')
+
+    await db.collection('systemConfig').doc('submissionDeadlineDays').set({
+      homecoming: 3,
+      mealAbsence: 3,
+    })
+
+    await db
+      .collection('systemConfig')
+      .doc('clubOptions')
+      .set({
+        options: ['ソフトテニス部', 'サッカー部', 'none'],
+      })
+
+    await db.collection('systemConfig').doc('curfewTime').set({
+      morning: '07:39',
+      night: '20:29',
+    })
+
+    await db.collection('systemConfig').doc('rollCallTime').set({
+      morning: '07:30',
+      morningAlt: '07:40',
+      evening: '20:30',
+    })
+
+    console.log(`  ✓ システム設定データを4件追加しました`)
 
     console.log('🎉 シードデータの投入が完了しました！')
   } catch (error) {

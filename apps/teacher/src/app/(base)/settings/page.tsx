@@ -8,68 +8,49 @@ import { SubmissionDeadlineSection } from './_components/submission-deadline-sec
 import { ClubOptionsSection } from './_components/club-options-section'
 import { TimeSettingsSection } from './_components/time-settings-section'
 import { useAuth } from '@/hooks/useAuth'
-import type { User } from 'firebase/auth'
-
-// 設定の型定義
-type SystemConfig = {
-  submissionDeadlineDays: {
-    homecoming: number
-    mealAbsence: number
-  }
-  clubOptions: string[]
-  curfewTime: {
-    morning: string
-    night: string
-  }
-  rollCallTime: {
-    morning: string
-    morningAlt: string
-    evening: string
-  }
-}
-
-// デフォルト値
-const defaultConfig: SystemConfig = {
-  submissionDeadlineDays: {
-    homecoming: 3,
-    mealAbsence: 3,
-  },
-  clubOptions: ['ソフトテニス部', 'サッカー部', 'none'],
-  curfewTime: {
-    morning: '07:39',
-    night: '20:29',
-  },
-  rollCallTime: {
-    morning: '07:30',
-    morningAlt: '07:40',
-    evening: '20:30',
-  },
-}
+import type { SystemConfig } from '@yurigaoka-app/common'
+import { fetchSystemConfig, saveSystemConfig } from './actions'
 
 export default function SettingPage() {
-  const { getUser, signOut } = useAuth()
-  const [user, setUser] = useState<User | null>(null)
-  const [config, setConfig] = useState<SystemConfig>(defaultConfig)
+  const { signOut } = useAuth()
+  const [config, setConfig] = useState<SystemConfig | null>(null)
   const [hasChanges, setHasChanges] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const user = await getUser()
-      setUser(user)
-    }
-    fetchUser()
+    let isMounted = true
 
-    // TODO: Firestoreから設定を読み込む
-    // 現在はデフォルト値を使用
-    setConfig(defaultConfig)
-  }, [getUser])
+    const loadData = async () => {
+      try {
+        const configData = await fetchSystemConfig()
+        if (isMounted) {
+          setConfig(configData)
+        }
+      } catch (error) {
+        console.error('Failed to load data:', error)
+        if (isMounted) {
+          toast.error('データの読み込みに失敗しました')
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      }
+    }
+    loadData()
+
+    return () => {
+      isMounted = false
+    }
+  }, []) // マウント時のみ実行（getUserは毎回同じ関数を返すため依存配列から除外）
 
   const handleSave = async () => {
+    if (!config) return
+
     setIsSaving(true)
     try {
-      // TODO: Firestoreに設定を保存する
-      await new Promise((resolve) => setTimeout(resolve, 500)) // 仮の保存処理
+      await saveSystemConfig(config)
       toast.success('設定を保存しました')
       setHasChanges(false)
     } catch (error) {
@@ -81,15 +62,35 @@ export default function SettingPage() {
   }
 
   const handleConfigChange = (newConfig: Partial<SystemConfig>) => {
-    setConfig((prev) => ({ ...prev, ...newConfig }))
+    if (!config) return
+    setConfig((prev) => {
+      if (!prev) return null
+      return { ...prev, ...newConfig }
+    })
     setHasChanges(true)
+  }
+
+  if (isLoading || !config) {
+    return (
+      <div className={styles.container}>
+        <h1 className={styles.title}>設定</h1>
+        <p>読み込み中...</p>
+      </div>
+    )
   }
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.title}>設定</h1>
-        <p>設定変更後はページ下部の「変更を保存」ボタンを押して保存してください。</p>
+        <div className={styles.headerLeft}>
+          <h1 className={styles.title}>設定</h1>
+          <p>設定変更後はページ下部の「変更を保存」ボタンを押して保存してください。</p>
+        </div>
+        <div className={styles.headerRight}>
+          <BaseButton onClick={() => signOut()} variant="danger">
+            ログアウト
+          </BaseButton>
+        </div>
       </div>
 
       <div className={styles.content}>
@@ -110,24 +111,6 @@ export default function SettingPage() {
           rollCallTime={config.rollCallTime}
           onRollCallTimeChange={(time) => handleConfigChange({ rollCallTime: time })}
         />
-
-        {/* ユーザー情報セクション */}
-        <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>ユーザー情報</h2>
-          <div className={styles.userInfo}>
-            <p>
-              <strong>メールアドレス:</strong> {user?.email || '読み込み中...'}
-            </p>
-            <p>
-              <strong>名前:</strong> {user?.displayName || '未設定'}
-            </p>
-            <div style={{ marginTop: '16px' }}>
-              <BaseButton onClick={() => signOut()} variant="secondary">
-                ログアウト
-              </BaseButton>
-            </div>
-          </div>
-        </div>
 
         <div>
           {hasChanges && (

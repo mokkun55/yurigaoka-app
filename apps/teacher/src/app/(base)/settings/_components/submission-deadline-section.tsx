@@ -12,17 +12,19 @@ type Props = {
 }
 
 export function SubmissionDeadlineSection({ config, onChange }: Props) {
-  const handleHomecomingChange = (value: number | string) => {
-    const numValue = typeof value === 'number' ? value : parseInt(value, 10)
+  const handleHomecomingChange = (value: number | string | undefined) => {
+    if (value === undefined || value === '') return
+    const numValue = typeof value === 'number' ? value : parseInt(String(value), 10)
     if (!isNaN(numValue) && numValue >= 0) {
-      onChange({ ...config, homecoming: numValue })
+      onChange({ homecoming: numValue, mealAbsence: config.mealAbsence })
     }
   }
 
-  const handleMealAbsenceChange = (value: number | string) => {
-    const numValue = typeof value === 'number' ? value : parseInt(value, 10)
+  const handleMealAbsenceChange = (value: number | string | undefined) => {
+    if (value === undefined || value === '') return
+    const numValue = typeof value === 'number' ? value : parseInt(String(value), 10)
     if (!isNaN(numValue) && numValue >= 0) {
-      onChange({ ...config, mealAbsence: numValue })
+      onChange({ homecoming: config.homecoming, mealAbsence: numValue })
     }
   }
 

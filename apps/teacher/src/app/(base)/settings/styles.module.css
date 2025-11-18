@@ -6,9 +6,20 @@
 
 .header {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
   gap: 8px;
   margin-bottom: 8px;
+  .headerLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .headerRight {
+    display: flex;
+    flex-direction: row;
+  }
 }
 
 .title {
@@ -173,4 +184,3 @@
   outline: none;
   border-color: var(--main-blue);
 }
-
