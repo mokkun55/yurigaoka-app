@@ -11,12 +11,13 @@ import { Button } from '@/_components/ui/button'
 import { useFirebaseAuthContext } from '@/providers/AuthProvider'
 import LoadingSpinner from '@/_components/ui/loading-spinner'
 import DeleteModal from '@/_components/ui/delete-modal'
+import { getUserSettings, updateUserSettings } from './actions'
+import toast from 'react-hot-toast'
 
 type Preset = {
   id: string
   name: string
   address: string
-  phoneNumber: string
 }
 
 type FormData = {
@@ -72,8 +73,8 @@ export default function Setting() {
       roomNumber: '',
       parentName: '',
       presets: [
-        { id: '1', name: '', address: '', phoneNumber: '' },
-        { id: '2', name: '', address: '', phoneNumber: '' },
+        { id: '1', name: '', address: '' },
+        { id: '2', name: '', address: '' },
       ],
     },
   })
@@ -85,20 +86,41 @@ export default function Setting() {
     setValue('className', '')
   }, [watchedGradeName, setValue])
 
-  // TODO: ユーザーデータをAPIから取得してフォームに設定
+  // ユーザーデータを取得してフォームに設定
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        // const userData = await fetchUserData(currentUser?.uid)
-        // if (userData) {
-        //   setValue('gradeName', userData.grade || '')
-        //   setValue('className', userData.class || '')
-        //   setValue('roomNumber', userData.roomNumber || '')
-        //   setValue('parentName', userData.parentName || '')
-        // }
+        const settingsData = await getUserSettings()
+        if (settingsData) {
+          setValue('gradeName', settingsData.grade || '')
+          setValue('className', settingsData.class || '')
+          setValue('roomNumber', settingsData.roomNumber || '')
+          setValue('parentName', settingsData.parentName || '')
+
+          // プリセットデータを設定
+          const presets = settingsData.presets || []
+          if (presets.length === 0) {
+            // 0個の場合は空欄2つを用意
+            setValue('presets', [
+              { id: '1', name: '', address: '' },
+              { id: '2', name: '', address: '' },
+            ])
+          } else {
+            // 1個以上の場合、そのまま表示（空欄は追加しない）
+            setValue(
+              'presets',
+              presets.map((p) => ({
+                id: p.id || Date.now().toString(),
+                name: p.name,
+                address: p.address,
+              }))
+            )
+          }
+        }
         setIsLoading(false)
       } catch (error) {
         console.error('Failed to load user data:', error)
+        toast.error('データの取得に失敗しました')
         setIsLoading(false)
       }
     }
@@ -115,7 +137,6 @@ export default function Setting() {
       id: Date.now().toString(),
       name: '',
       address: '',
-      phoneNumber: '',
     }
     const currentPresets = watchedPresets || []
     setValue('presets', [...currentPresets, newPreset])
@@ -147,20 +168,23 @@ export default function Setting() {
   const onSubmit = async (data: FormData) => {
     setIsSaving(true)
     try {
-      // TODO: APIを呼び出してデータを保存
-      // await saveUserData({
-      //   grade: data.gradeName,
-      //   class: data.className,
-      //   roomNumber: data.roomNumber,
-      //   parentName: data.parentName,
-      //   presets: data.presets,
-      // })
-      console.log('Saving data:', data)
-      // 成功メッセージを表示
-      alert('保存しました')
+      await updateUserSettings(
+        {
+          grade: data.gradeName,
+          class: data.className,
+          roomNumber: data.roomNumber,
+          parentName: data.parentName,
+        },
+        data.presets.map((preset) => ({
+          id: preset.id,
+          name: preset.name,
+          address: preset.address,
+        }))
+      )
+      toast.success('保存しました')
     } catch (error) {
       console.error('Failed to save:', error)
-      alert('保存に失敗しました')
+      toast.error('保存に失敗しました')
     } finally {
       setIsSaving(false)
     }
@@ -302,27 +326,6 @@ export default function Setting() {
                     render={({ field }) => <BaseInput {...field} placeholder="例: 大阪府大阪市..." fullWidth />}
                   />
                 </InputLabel>
-
-                <div className="flex flex-col gap-2">
-                  <InputLabel label="電話番号">
-                    <Controller
-                      name={`presets.${index}.phoneNumber`}
-                      control={control}
-                      rules={{
-                        pattern: {
-                          value: /^[0-9-]*$/,
-                          message: '電話番号は数字とハイフンのみで入力してください',
-                        },
-                      }}
-                      render={({ field }) => (
-                        <BaseInput {...field} placeholder="例: 090-1234-5678" type="tel" fullWidth />
-                      )}
-                    />
-                  </InputLabel>
-                  {errors.presets?.[index]?.phoneNumber && (
-                    <p className="text-red-500 text-sm mt-1">{errors.presets[index]?.phoneNumber?.message}</p>
-                  )}
-                </div>
               </div>
             ))}
 

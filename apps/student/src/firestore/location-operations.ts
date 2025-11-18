@@ -20,11 +20,18 @@ export const fetchLocation = async (locationId: string): Promise<Location | null
 }
 
 export const fetchLocationsByUser = async (userId: string): Promise<Location[]> => {
-  const snapshot = await adminDb
-    .collection('locations')
-    .where('userId', '==', userId)
-    .orderBy('createdAt', 'desc')
-    .get()
+  const snapshot = await adminDb.collection('locations').where('userId', '==', userId).orderBy('createdAt', 'asc').get()
 
   return snapshot.docs.map((doc) => ({ id: doc.id, ...convertDate(doc.data(), dateColumns) }) as Location) as Location[]
+}
+
+export const updateLocation = async (
+  locationId: string,
+  data: Partial<Omit<Location, 'id' | 'createdAt' | 'userId'>>
+) => {
+  await adminDb.collection('locations').doc(locationId).update(data)
+}
+
+export const deleteLocation = async (locationId: string) => {
+  await adminDb.collection('locations').doc(locationId).delete()
 }

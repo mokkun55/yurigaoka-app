@@ -15,6 +15,7 @@ export async function registerUser(
     club: registerFormData.club === 'none' ? '' : registerFormData.club,
     roomNumber: registerFormData.roomNumber,
     phoneNumber: registerFormData.emergencyTel,
+    parentName: registerFormData.parentName,
   }
 
   // ユーザー情報とisRegisteredを更新
