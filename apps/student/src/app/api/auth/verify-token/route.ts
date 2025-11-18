@@ -2,9 +2,19 @@ import { adminAuth, adminDb } from '@/lib/firebase/admin'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
+function getSessionCookieName(): string {
+  const cookieName = process.env.SESSION_COOKIE_NAME
+  if (!cookieName) {
+    throw new Error('環境変数 SESSION_COOKIE_NAME が設定されていません')
+  }
+  return cookieName
+}
+
 export async function GET() {
+  // 環境変数を取得（遅延評価）
+  const cookieName = getSessionCookieName()
   // セッションCookieから取得
-  const sessionCookie = (await cookies()).get('__session')?.value
+  const sessionCookie = (await cookies()).get(cookieName)?.value
 
   // cookieが存在しない場合はエラー
   if (!sessionCookie) {

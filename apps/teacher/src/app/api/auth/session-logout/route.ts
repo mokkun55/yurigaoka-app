@@ -1,13 +1,21 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 
-const SESSION_COOKIE_NAME = '__session'
+function getSessionCookieName(): string {
+  const cookieName = process.env.SESSION_COOKIE_NAME
+  if (!cookieName) {
+    throw new Error('環境変数 SESSION_COOKIE_NAME が設定されていません')
+  }
+  return cookieName
+}
 
 export async function POST() {
   try {
+    // 環境変数を取得
+    const cookieName = getSessionCookieName()
     // セッションCookieを削除
     ;(await cookies()).set({
-      name: SESSION_COOKIE_NAME,
+      name: cookieName,
       value: '',
       maxAge: 0,
       httpOnly: true,

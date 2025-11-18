@@ -2,9 +2,27 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { adminAuth } from '@/lib/firebase/admin'
 
-// Cookieの有効期限（例: 5日間）
-const MAX_AGE = 60 * 60 * 24 * 5 * 1000
-const SESSION_COOKIE_NAME = '__session'
+function getSessionCookieName(): string {
+  const cookieName = process.env.SESSION_COOKIE_NAME
+  if (!cookieName) {
+    throw new Error('環境変数 SESSION_COOKIE_NAME が設定されていません')
+  }
+  return cookieName
+}
+
+function getMaxAge(): number {
+  const maxAgeDaysStr = process.env.SESSION_COOKIE_MAX_AGE_DAYS
+  if (!maxAgeDaysStr) {
+    throw new Error('環境変数 SESSION_COOKIE_MAX_AGE_DAYS が設定されていません')
+  }
+
+  const maxAgeDays = parseInt(maxAgeDaysStr, 10)
+  if (isNaN(maxAgeDays) || maxAgeDays <= 0) {
+    throw new Error('環境変数 SESSION_COOKIE_MAX_AGE_DAYS は正の整数である必要があります')
+  }
+
+  return 60 * 60 * 24 * maxAgeDays * 1000
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,16 +32,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Token is missing' }, { status: 400 })
     }
 
+    // 環境変数を取得（遅延評価）
+    const cookieName = getSessionCookieName()
+    const maxAge = getMaxAge()
+
     // Firebase Admin SDKで新しいセッションCookieを作成
     const sessionCookie = await adminAuth.createSessionCookie(token, {
-      expiresIn: MAX_AGE,
+      expiresIn: maxAge,
     })
 
     // CookieをHttpOnlyでセキュアに設定
     ;(await cookies()).set({
-      name: SESSION_COOKIE_NAME,
+      name: cookieName,
       value: sessionCookie,
-      maxAge: MAX_AGE / 1000, // maxAgeは秒単位
+      maxAge: maxAge / 1000, // maxAgeは秒単位
       httpOnly: true, // JavaScriptからのアクセスを禁止
       secure: process.env.NODE_ENV === 'production', // HTTPSでのみ送信
       path: '/',

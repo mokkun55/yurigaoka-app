@@ -15,7 +15,6 @@ admin.initializeApp({
  */
 async function seedData() {
   const db = admin.firestore()
-  const auth = admin.auth()
 
   console.log('🌱 シードデータの投入を開始します...')
 
@@ -41,85 +40,32 @@ async function seedData() {
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     })
 
-    // === Authユーザーの作成 ===
-    console.log('👤 Authユーザーを作成中...')
+    console.log(`  ✓ teacherWhitelistデータを3件追加しました`)
 
-    // 教員ユーザー
-    try {
-      await auth.createUser({
-        uid: 'test-teacher-001',
-        email: 'teacher001@ktc.ac.jp',
-        password: 'password123',
-        displayName: 'テスト教員1',
-      })
-    } catch (error: unknown) {
-      if (error instanceof Error && error.message.includes('auth/email-already-exists')) {
-        console.log('  ℹ テスト教員1は既に存在します')
-      } else {
-        throw error
-      }
-    }
+    // === inviteCodesコレクションのシードデータ ===
+    console.log('🎫 inviteCodesコレクションにデータを追加中...')
 
-    try {
-      await auth.createUser({
-        uid: 'test-teacher-002',
-        email: 'teacher002@ktc.ac.jp',
-        password: 'password123',
-        displayName: 'テスト教員2',
-      })
-    } catch (error: unknown) {
-      if (error instanceof Error && error.message.includes('auth/email-already-exists')) {
-        console.log('  ℹ テスト教員2は既に存在します')
-      } else {
-        throw error
-      }
-    }
+    const now = new Date()
+    const limitDate = new Date(now)
+    limitDate.setMonth(limitDate.getMonth() + 3) // 3ヶ月後
+    const lastWeek = new Date(now)
+    lastWeek.setDate(lastWeek.getDate() - 7)
 
-    // 学生ユーザー
-    try {
-      await auth.createUser({
-        uid: 'test-manager-001',
-        email: 'g00001@ktc.ac.jp',
-        password: 'password123',
-        displayName: 'テスト寮長',
-      })
-    } catch (error: unknown) {
-      if (error instanceof Error && error.message.includes('auth/email-already-exists')) {
-        console.log('  ℹ テスト寮長は既に存在します')
-      } else {
-        throw error
-      }
-    }
+    await db.collection('inviteCodes').add({
+      code: 'TEST123',
+      useCount: 0,
+      limitDate: admin.firestore.Timestamp.fromDate(limitDate),
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    })
 
-    try {
-      await auth.createUser({
-        uid: 'test-student-001',
-        email: 'g00002@ktc.ac.jp',
-        password: 'password123',
-        displayName: 'テスト学生1',
-      })
-    } catch (error: unknown) {
-      if (error instanceof Error && error.message.includes('auth/email-already-exists')) {
-        console.log('  ℹ テスト学生1は既に存在します')
-      } else {
-        throw error
-      }
-    }
+    await db.collection('inviteCodes').add({
+      code: 'EXPIRED9999',
+      useCount: 0,
+      limitDate: admin.firestore.Timestamp.fromDate(lastWeek), // 期限切れ
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    })
 
-    try {
-      await auth.createUser({
-        uid: 'test-student-002',
-        email: 'g00003@ktc.ac.jp',
-        password: 'password123',
-        displayName: 'テスト学生2',
-      })
-    } catch (error: unknown) {
-      if (error instanceof Error && error.message.includes('auth/email-already-exists')) {
-        console.log('  ℹ テスト学生2は既に存在します')
-      } else {
-        throw error
-      }
-    }
+    console.log(`  ✓ 招待コードデータを3件追加しました`)
 
     console.log('🎉 シードデータの投入が完了しました！')
   } catch (error) {
