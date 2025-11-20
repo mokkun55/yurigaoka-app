@@ -6,11 +6,13 @@ import { StudentWithHomecoming } from '../../actions'
 import { LINEUP_MAX_COLUMNS, LINEUP_MAX_ROWS } from '../../constants'
 import { Button, SegmentedControl } from '@mantine/core'
 import { isMorningRollCallHomecomingAt740, isEveningRollCallHomecoming } from '../../utils'
+import { RollCallTime } from '@yurigaoka-app/common'
 
 type Props = {
   students: StudentWithHomecoming[]
   selectedDate: Date
   onEditClick?: () => void
+  rollCallTime: RollCallTime
 }
 
 type RollCallType = 'morning' | 'evening'
@@ -23,7 +25,7 @@ type OccupantMap = Map<string, OccupantEntry[]>
 
 const VISIBLE_COLUMNS = 4
 
-export default function LineupView({ students, selectedDate, onEditClick }: Props) {
+export default function LineupView({ students, selectedDate, onEditClick, rollCallTime }: Props) {
   const [localStudents, setLocalStudents] = useState(students)
   const [columnStart, setColumnStart] = useState(1)
   const [rollCallType, setRollCallType] = useState<RollCallType>('morning')
@@ -129,8 +131,8 @@ export default function LineupView({ students, selectedDate, onEditClick }: Prop
               // 選択された点呼時刻に応じて帰省者を判定
               const isHomecoming =
                 rollCallType === 'morning'
-                  ? isMorningRollCallHomecomingAt740(selectedDate, first.student.homecomingSubmissions)
-                  : isEveningRollCallHomecoming(selectedDate, first.student.homecomingSubmissions)
+                  ? isMorningRollCallHomecomingAt740(selectedDate, first.student.homecomingSubmissions, rollCallTime)
+                  : isEveningRollCallHomecoming(selectedDate, first.student.homecomingSubmissions, rollCallTime)
 
               // カードのクラス名を決定
               let cellClassName = styles.cell

@@ -3,10 +3,11 @@
 import { fetchAllStudents, updateStudentLineupPosition } from '@/firestore/user-operations'
 import type { LineupPosition } from '@/firestore/user-operations'
 import { fetchAllSubmissions } from '@/firestore/submission-operations'
-import { User, HomecomingSubmission, Location } from '@yurigaoka-app/common'
+import { User, HomecomingSubmission, Location, SystemConfig } from '@yurigaoka-app/common'
 import { adminDb } from '@/lib/firebase/admin'
 import { convertDate } from '@/utils/dateUtils'
 import { LINEUP_MAX_COLUMNS, LINEUP_MAX_ROWS } from './constants'
+import { getSystemConfig } from '@/firestore/system-config-operations'
 
 export type StudentWithHomecoming = {
   user: User
@@ -99,6 +100,13 @@ export async function setStudentLineupPosition(studentId: string, position: Line
   }
 
   await updateStudentLineupPosition(studentId, position)
+}
+
+/**
+ * システム設定を取得
+ */
+export async function getSystemConfigAction(): Promise<SystemConfig> {
+  return await getSystemConfig()
 }
 
 /**

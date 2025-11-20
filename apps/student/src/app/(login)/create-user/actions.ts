@@ -4,6 +4,8 @@ import { adminDb } from '@/lib/firebase/admin'
 import type { UserFormValues, InvitationCodeValues } from './page'
 import { createLocation } from '@/firestore/location-operations'
 import { fetchInviteCodeByCode, incrementInviteCodeUsage } from '@/firestore/invite-code-operations'
+import { SystemConfig } from '@yurigaoka-app/common'
+import { getSystemConfig } from '@/firestore/system-config-operations'
 
 // TODO ユーザー作成時の処理
 export async function registerUser(
@@ -47,6 +49,11 @@ export async function registerUser(
       console.error('招待コードの使用回数更新に失敗しました:', error)
     }
   }
+}
+
+// システム設定を取得
+export async function getSystemConfigAction(): Promise<SystemConfig> {
+  return await getSystemConfig()
 }
 
 export async function verifyInvitationCode(inviteFormData: InvitationCodeValues) {

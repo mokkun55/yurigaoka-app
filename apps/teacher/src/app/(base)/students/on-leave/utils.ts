@@ -1,5 +1,13 @@
-import { HomecomingSubmission } from '@yurigaoka-app/common'
+import { HomecomingSubmission, RollCallTime } from '@yurigaoka-app/common'
 import { StudentWithHomecoming, GradeGroup, StudentsByGrade } from './actions'
+
+/**
+ * 時刻文字列（HH:mm形式）をDateオブジェクトに変換
+ */
+function parseTimeString(timeStr: string): { hours: number; minutes: number } {
+  const [hours, minutes] = timeStr.split(':').map(Number)
+  return { hours, minutes }
+}
 
 /**
  * 指定された日付が帰省期間内かどうかをチェック
@@ -19,49 +27,64 @@ export function isDateInHomecomingRange(date: Date, submissions: HomecomingSubmi
 }
 
 /**
- * 指定された日時（7:30）の時点で帰省中かどうかをチェック
+ * 指定された日時（朝の点呼時刻）の時点で帰省中かどうかをチェック
  */
-export function isMorningRollCallHomecoming(date: Date, submissions: HomecomingSubmission[]): boolean {
-  // その日の7:30の時刻を作成
-  const morningTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 7, 30, 0)
+export function isMorningRollCallHomecoming(
+  date: Date,
+  submissions: HomecomingSubmission[],
+  rollCallTime: RollCallTime
+): boolean {
+  const { hours, minutes } = parseTimeString(rollCallTime.morning)
+  // その日の朝の点呼時刻を作成
+  const morningTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hours, minutes, 0)
 
   return submissions.some((submission) => {
     const startDate = submission.startDate instanceof Date ? submission.startDate : new Date(submission.startDate)
     const endDate = submission.endDate instanceof Date ? submission.endDate : new Date(submission.endDate)
 
-    // 7:30の時点で帰省開始時刻以降なら帰省中（不在）
+    // 朝の点呼時刻の時点で帰省開始時刻以降なら帰省中（不在）
     return morningTime >= startDate && morningTime <= endDate
   })
 }
 
 /**
- * 指定された日時（7:40）の時点で帰省中かどうかをチェック
+ * 指定された日時（朝の点呼時刻（別バージョン））の時点で帰省中かどうかをチェック
  */
-export function isMorningRollCallHomecomingAt740(date: Date, submissions: HomecomingSubmission[]): boolean {
-  // その日の7:40の時刻を作成
-  const morningTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 7, 40, 0)
+export function isMorningRollCallHomecomingAt740(
+  date: Date,
+  submissions: HomecomingSubmission[],
+  rollCallTime: RollCallTime
+): boolean {
+  const { hours, minutes } = parseTimeString(rollCallTime.morningAlt)
+  // その日の朝の点呼時刻（別バージョン）を作成
+  const morningTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hours, minutes, 0)
 
   return submissions.some((submission) => {
     const startDate = submission.startDate instanceof Date ? submission.startDate : new Date(submission.startDate)
     const endDate = submission.endDate instanceof Date ? submission.endDate : new Date(submission.endDate)
 
-    // 7:40の時点で帰省開始時刻以降なら帰省中（不在）
+    // 朝の点呼時刻（別バージョン）の時点で帰省開始時刻以降なら帰省中（不在）
     return morningTime >= startDate && morningTime <= endDate
   })
 }
 
 /**
- * 指定された日時（20:30）の時点で帰省中かどうかをチェック
+ * 指定された日時（夜の点呼時刻）の時点で帰省中かどうかをチェック
  */
-export function isEveningRollCallHomecoming(date: Date, submissions: HomecomingSubmission[]): boolean {
-  // その日の20:30の時刻を作成
-  const eveningTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 20, 30, 0)
+export function isEveningRollCallHomecoming(
+  date: Date,
+  submissions: HomecomingSubmission[],
+  rollCallTime: RollCallTime
+): boolean {
+  const { hours, minutes } = parseTimeString(rollCallTime.evening)
+  // その日の夜の点呼時刻を作成
+  const eveningTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hours, minutes, 0)
 
   return submissions.some((submission) => {
     const startDate = submission.startDate instanceof Date ? submission.startDate : new Date(submission.startDate)
     const endDate = submission.endDate instanceof Date ? submission.endDate : new Date(submission.endDate)
 
-    // 20:30の時点で帰省開始時刻以降かつ帰省終了時刻より前なら帰省中（不在）
+    // 夜の点呼時刻の時点で帰省開始時刻以降かつ帰省終了時刻より前なら帰省中（不在）
     return eveningTime >= startDate && eveningTime <= endDate
   })
 }

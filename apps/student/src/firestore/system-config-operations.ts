@@ -41,15 +41,3 @@ export async function getSystemConfig(): Promise<SystemConfig> {
     rollCallTime,
   }
 }
-
-/**
- * Firestoreにシステム設定を保存
- */
-export async function updateSystemConfig(config: SystemConfig): Promise<void> {
-  await Promise.all([
-    adminDb.collection('systemConfig').doc('submissionDeadlineDays').set(config.submissionDeadlineDays),
-    adminDb.collection('systemConfig').doc('clubOptions').set({ options: config.clubOptions }),
-    adminDb.collection('systemConfig').doc('curfewTime').set(config.curfewTime),
-    adminDb.collection('systemConfig').doc('rollCallTime').set(config.rollCallTime),
-  ])
-}
