@@ -2,7 +2,13 @@
 
 import { MealFormValues } from './page'
 import { postMealAbsenceSubmission } from '@/firestore/submission-operations'
-import { MealAbsenceSubmission } from '@yurigaoka-app/common'
+import { MealAbsenceSubmission, SystemConfig } from '@yurigaoka-app/common'
+import { getSystemConfig } from '@/firestore/system-config-operations'
+
+// システム設定を取得
+export async function getSystemConfigAction(): Promise<SystemConfig> {
+  return await getSystemConfig()
+}
 
 // 欠食届を提出
 export async function submitMealForm(data: MealFormValues, uid: string) {

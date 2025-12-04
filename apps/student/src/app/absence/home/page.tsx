@@ -9,20 +9,16 @@ import { Button } from '@/_components/ui/button'
 import { useState, useEffect } from 'react'
 import { DateInput } from '@/_components/ui/input/date-input'
 import { TimeInput } from '@/_components/ui/input/time-input'
-import { submitHomecomingForm } from './actions'
+import { submitHomecomingForm, getSystemConfigAction } from './actions'
 import LoadingSpinner from '@/_components/ui/loading-spinner'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
 import { formatDateWithWeekday } from '@/utils/dateUtils'
 import { MealCheckboxGroup } from '@/_components/ui/checkbox/checkbox-field/MealCheckboxGroup'
-import { Location } from '@yurigaoka-app/common'
+import { Location, SystemConfig } from '@yurigaoka-app/common'
 import { useFirebaseAuthContext } from '@/providers/AuthProvider'
 import { getLocations } from './actions'
-
-// 門限時刻を変数で定義
-const LIMIT_MORNING = '07:39'
-const LIMIT_NIGHT = '20:29'
 
 // 分単位で時刻比較する関数
 const toMinutes = (time: string) => {
@@ -31,81 +27,123 @@ const toMinutes = (time: string) => {
 }
 
 // 特別な事情が必要かどうか判定する共通関数
-const isSpecialReasonRequired = (dep?: string, ret?: string) => {
+const isSpecialReasonRequired = (dep?: string, ret?: string, curfewTime?: { morning: string; night: string }) => {
+  if (!curfewTime) return false
   // 出発が朝より早い、または夜より遅い
-  const depEarly = dep && toMinutes(dep) < toMinutes(LIMIT_MORNING)
-  const depLate = dep && toMinutes(dep) >= toMinutes(LIMIT_NIGHT)
+  const depEarly = dep && toMinutes(dep) < toMinutes(curfewTime.morning)
+  const depLate = dep && toMinutes(dep) >= toMinutes(curfewTime.night)
   // 帰寮が夜より遅い、または朝より早い
-  const retLate = ret && toMinutes(ret) > toMinutes(LIMIT_NIGHT)
-  const retEarly = ret && toMinutes(ret) <= toMinutes(LIMIT_MORNING)
+  const retLate = ret && toMinutes(ret) > toMinutes(curfewTime.night)
+  const retEarly = ret && toMinutes(ret) <= toMinutes(curfewTime.morning)
   return !!(depEarly || depLate || retEarly || retLate)
 }
 
-const homecomingFormSchema = z
-  .object({
-    startDate: z.string().min(1, '開始日を選択してください'),
-    endDate: z.string().min(1, '終了日を選択してください'),
-    departureTime: z.string().min(1, '出発予定時刻を入力してください'),
-    returnTime: z.string().min(1, '帰寮予定時刻を入力してください'),
-    locationId: z.string().min(1, '帰省先が必要です'),
-    reason: z.string().min(1, '理由を入力してください'),
-    meal_start: z.enum(['breakfast', 'dinner']).nullable(),
-    meal_end: z.enum(['breakfast', 'dinner']).nullable(),
-    specialReason: z.string().optional(),
-  })
-  .refine((data) => new Date(data.startDate) < new Date(data.endDate), {
-    message: '開始日は終了日より前の日付を選択してください',
-    path: ['startDate'],
-  })
-  .refine((data) => data.startDate !== data.endDate, {
-    message: '開始日と終了日が同じ日付になっています',
-    path: ['endDate'],
-  })
-  .refine(
-    (data) => {
-      const today = new Date()
-      const start = new Date(data.startDate)
-      today.setHours(0, 0, 0, 0)
-      const threeDaysLater = new Date(today)
-      threeDaysLater.setDate(today.getDate() + 3)
-      return start >= threeDaysLater
-    },
-    { message: '帰省届は3日前までに提出してください', path: ['startDate'] }
-  )
-  .refine(
-    (data) => {
-      if (isSpecialReasonRequired(data.departureTime, data.returnTime)) {
-        return data.specialReason && data.specialReason.trim().length > 0
+// スキーマを動的に生成する関数
+const createHomecomingFormSchema = (deadlineDays: number, curfewTime?: { morning: string; night: string }) => {
+  return z
+    .object({
+      startDate: z.string().min(1, '開始日を選択してください'),
+      endDate: z.string().min(1, '終了日を選択してください'),
+      departureTime: z.string().min(1, '出発予定時刻を入力してください'),
+      returnTime: z.string().min(1, '帰寮予定時刻を入力してください'),
+      locationId: z.string().min(1, '帰省先が必要です'),
+      reason: z.string().min(1, '理由を入力してください'),
+      meal_start: z.enum(['breakfast', 'dinner']).nullable(),
+      meal_end: z.enum(['breakfast', 'dinner']).nullable(),
+      specialReason: z.string().optional(),
+    })
+    .refine((data) => new Date(data.startDate) < new Date(data.endDate), {
+      message: '開始日は終了日より前の日付を選択してください',
+      path: ['startDate'],
+    })
+    .refine((data) => data.startDate !== data.endDate, {
+      message: '開始日と終了日が同じ日付になっています',
+      path: ['endDate'],
+    })
+    .refine(
+      (data) => {
+        const today = new Date()
+        const start = new Date(data.startDate)
+        today.setHours(0, 0, 0, 0)
+        const deadlineDate = new Date(today)
+        deadlineDate.setDate(today.getDate() + deadlineDays)
+        return start >= deadlineDate
+      },
+      { message: `帰省届は${deadlineDays}日前までに提出してください`, path: ['startDate'] }
+    )
+    .refine(
+      (data) => {
+        if (isSpecialReasonRequired(data.departureTime, data.returnTime, curfewTime)) {
+          return data.specialReason && data.specialReason.trim().length > 0
+        }
+        return true
+      },
+      {
+        message: '特別な事情を入力してください',
+        path: ['specialReason'],
       }
-      return true
-    },
-    {
-      message: '特別な事情を入力してください',
-      path: ['specialReason'],
-    }
-  )
+    )
+}
 
-export type HomecomingFormValues = z.infer<typeof homecomingFormSchema>
+export type HomecomingFormValues = z.infer<ReturnType<typeof createHomecomingFormSchema>>
 
 export default function AbsenceHome() {
   const router = useRouter()
-  const [formValues, setFormValues] = useState<HomecomingFormValues | undefined>(undefined)
-  const [isConfirm, setIsConfirm] = useState<boolean>(false)
   const [locations, setLocations] = useState<Location[]>([])
+  const [systemConfig, setSystemConfig] = useState<SystemConfig | null>(null)
   const { uid } = useFirebaseAuthContext()
 
   useEffect(() => {
     if (!uid) {
       return
     }
-    const fetchLocations = async () => {
-      const data = await getLocations(uid)
-      setLocations(data || [])
+    const fetchData = async () => {
+      try {
+        const [locationsData, configData] = await Promise.all([getLocations(uid), getSystemConfigAction()])
+        setLocations(locationsData || [])
+        setSystemConfig(configData)
+      } catch (error) {
+        console.error('Failed to load data:', error)
+      }
     }
-    fetchLocations()
+    fetchData()
   }, [uid])
 
+  if (!systemConfig) {
+    return (
+      <div className="bg-white h-full flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner size={48} />
+          <p className="text-gray-600 mt-2">システム設定を読み込み中...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return <HomecomingForm systemConfig={systemConfig} locations={locations} router={router} uid={uid} />
+}
+
+function HomecomingForm({
+  systemConfig,
+  locations,
+  router,
+  uid,
+}: {
+  systemConfig: SystemConfig
+  locations: Location[]
+  router: ReturnType<typeof useRouter>
+  uid: string | null
+}) {
+  const [formValues, setFormValues] = useState<HomecomingFormValues | undefined>(undefined)
+  const [isConfirm, setIsConfirm] = useState<boolean>(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const today = dayjs().format('YYYY-MM-DD')
+
+  const homecomingFormSchema = createHomecomingFormSchema(
+    systemConfig.submissionDeadlineDays.homecoming,
+    systemConfig.curfewTime
+  )
 
   const {
     control,
@@ -127,8 +165,6 @@ export default function AbsenceHome() {
       meal_end: null,
     },
   })
-
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // 確認
   const onConfirm = (data: HomecomingFormValues) => {
@@ -155,7 +191,7 @@ export default function AbsenceHome() {
   // 特別な事情の表示判定
   const departureTime = watch('departureTime')
   const returnTime = watch('returnTime')
-  const showSpecialReason = isSpecialReasonRequired(departureTime, returnTime)
+  const showSpecialReason = isSpecialReasonRequired(departureTime, returnTime, systemConfig.curfewTime)
 
   // チェックボックスの状態をmeal_start/meal_endと同期
   const mealStart = watch('meal_start')
@@ -314,7 +350,7 @@ export default function AbsenceHome() {
           </InputLabel>
 
           {(() => {
-            if (isSpecialReasonRequired(formValues.departureTime, formValues.returnTime)) {
+            if (isSpecialReasonRequired(formValues.departureTime, formValues.returnTime, systemConfig.curfewTime)) {
               return (
                 <InputLabel label="特別な事情">
                   <div className="text-base">{formValues.specialReason}</div>

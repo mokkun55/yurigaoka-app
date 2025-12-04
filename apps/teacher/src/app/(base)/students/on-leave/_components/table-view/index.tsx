@@ -6,7 +6,7 @@ import styles from './styles.module.css'
 import { useMemo, useState, Fragment } from 'react'
 import DetailModal from '@/app/(base)/reports/_components/detail-modal'
 import { Report } from '@/app/(base)/reports/_type/report'
-import { HomecomingSubmission, Location } from '@yurigaoka-app/common'
+import { HomecomingSubmission, Location, RollCallTime } from '@yurigaoka-app/common'
 import { convertMealsOffToMeals } from '@/utils/submissionUtils'
 import BaseModal from '@/ui/base-modal'
 
@@ -14,6 +14,7 @@ type Props = {
   students: StudentWithHomecoming[]
   year: number
   month: number
+  rollCallTime: RollCallTime
 }
 
 const dayNames = ['日', '月', '火', '水', '木', '金', '土']
@@ -51,7 +52,17 @@ function convertToReport(
   }
 }
 
-function GradeTable({ gradeGroup, year, month }: { gradeGroup: StudentsByGrade; year: number; month: number }) {
+function GradeTable({
+  gradeGroup,
+  year,
+  month,
+  rollCallTime,
+}: {
+  gradeGroup: StudentsByGrade
+  year: number
+  month: number
+  rollCallTime: RollCallTime
+}) {
   const { grade, students } = gradeGroup
   const [selectedReport, setSelectedReport] = useState<Report | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -178,10 +189,10 @@ function GradeTable({ gradeGroup, year, month }: { gradeGroup: StudentsByGrade; 
                     <td className={styles.clubCell}>{user.club || ''}</td>
                     <td className={styles.roomCell}>{user.roomNumber || ''}</td>
                     {dates.map((date) => {
-                      // 朝点呼（7:30）と夜点呼（20:30）の時点での帰省状態を判定
+                      // 朝点呼と夜点呼の時点での帰省状態を判定
                       // 帰省中（不在）の場合はtrue、在室の場合はfalse
-                      const morningRollCall = isMorningRollCallHomecoming(date, homecomingSubmissions)
-                      const eveningRollCall = isEveningRollCallHomecoming(date, homecomingSubmissions)
+                      const morningRollCall = isMorningRollCallHomecoming(date, homecomingSubmissions, rollCallTime)
+                      const eveningRollCall = isEveningRollCallHomecoming(date, homecomingSubmissions, rollCallTime)
 
                       const isTodayDate = isToday(date)
 
@@ -218,7 +229,7 @@ function GradeTable({ gradeGroup, year, month }: { gradeGroup: StudentsByGrade; 
   )
 }
 
-export default function TableView({ students, year, month }: Props) {
+export default function TableView({ students, year, month, rollCallTime }: Props) {
   // 学年ごとにグループ化
   const gradeGroups = useMemo(() => {
     return groupStudentsByGrade(students)
@@ -227,7 +238,13 @@ export default function TableView({ students, year, month }: Props) {
   return (
     <div className={styles.container}>
       {gradeGroups.map((gradeGroup) => (
-        <GradeTable key={gradeGroup.grade} gradeGroup={gradeGroup} year={year} month={month} />
+        <GradeTable
+          key={gradeGroup.grade}
+          gradeGroup={gradeGroup}
+          year={year}
+          month={month}
+          rollCallTime={rollCallTime}
+        />
       ))}
     </div>
   )

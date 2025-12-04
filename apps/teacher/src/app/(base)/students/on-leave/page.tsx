@@ -8,7 +8,8 @@ import DateSelect from './_components/date-select'
 import TableView from './_components/table-view'
 import LineupView from './_components/lineup-view'
 import LineupEditView from './_components/lineup-edit-view'
-import { getHomecomingData, StudentWithHomecoming } from './actions'
+import { getHomecomingData, StudentWithHomecoming, getSystemConfigAction } from './actions'
+import { SystemConfig } from '@yurigaoka-app/common'
 
 export default function OnLeavePage() {
   const now = new Date()
@@ -18,15 +19,17 @@ export default function OnLeavePage() {
   const [mode, setMode] = useState<'table' | 'list' | 'edit'>('table')
   const [students, setStudents] = useState<StudentWithHomecoming[]>([])
   const [loading, setLoading] = useState(true)
+  const [systemConfig, setSystemConfig] = useState<SystemConfig | null>(null)
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true)
       try {
-        const data = await getHomecomingData(year, month)
+        const [data, config] = await Promise.all([getHomecomingData(year, month), getSystemConfigAction()])
         setStudents(data)
+        setSystemConfig(config)
       } catch (error) {
-        console.error('Failed to load homecoming data:', error)
+        console.error('Failed to load data:', error)
       } finally {
         setLoading(false)
       }
@@ -69,11 +72,28 @@ export default function OnLeavePage() {
           if (loading) {
             return <div>読み込み中...</div>
           }
+          if (!systemConfig) {
+            return (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <p className="text-red-500 text-lg font-bold">システム設定の読み込みに失敗しました</p>
+                  <p className="text-gray-600 mt-2">ページを再読み込みしてください</p>
+                </div>
+              </div>
+            )
+          }
           if (mode === 'table') {
-            return <TableView students={students} year={year} month={month} />
+            return <TableView students={students} year={year} month={month} rollCallTime={systemConfig.rollCallTime} />
           }
           if (mode === 'list') {
-            return <LineupView students={students} selectedDate={selectedDate} onEditClick={() => setMode('edit')} />
+            return (
+              <LineupView
+                students={students}
+                selectedDate={selectedDate}
+                onEditClick={() => setMode('edit')}
+                rollCallTime={systemConfig.rollCallTime}
+              />
+            )
           }
           if (mode === 'edit') {
             return (

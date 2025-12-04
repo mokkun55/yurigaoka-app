@@ -6,11 +6,11 @@ import { z } from 'zod'
 import InputLabel from '@/_components/ui/input-label'
 import { Button } from '@/_components/ui/button'
 import { CheckboxField } from '@/_components/ui/checkbox/checkbox-field'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { DateInput } from '@/_components/ui/input/date-input'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
-import { submitMealForm } from './actions'
+import { submitMealForm, getSystemConfigAction } from './actions'
 import dayjs from 'dayjs'
 import weekday from 'dayjs/plugin/weekday'
 import ja from 'dayjs/locale/ja'
@@ -18,73 +18,89 @@ import { formatDateWithWeekday } from '@/utils/dateUtils'
 import { MealCheckboxGroup } from '@/_components/ui/checkbox/checkbox-field/MealCheckboxGroup'
 import LoadingSpinner from '@/_components/ui/loading-spinner'
 import { useFirebaseAuthContext } from '@/providers/AuthProvider'
+import { SystemConfig } from '@yurigaoka-app/common'
 dayjs.extend(weekday)
 dayjs.locale(ja)
 
-const mealFormSchema = z
-  .object({
-    startDate: z.string().min(1, '開始日を選択してください'),
-    endDate: z.string().min(1, '終了日を選択してください'),
-    start_meal: z.enum(['breakfast', 'dinner']).nullable(),
-    end_meal: z.enum(['breakfast', 'dinner']).nullable(),
-    reason: z.string().min(1, '理由を入力してください'),
-    oneDayBreakfast: z.boolean().optional(),
-    oneDayDinner: z.boolean().optional(),
-  })
-  .superRefine((data, ctx) => {
-    // 開始日 <= 終了日
-    if (new Date(data.startDate) > new Date(data.endDate)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['startDate'],
-        message: '開始日は終了日より前または同じ日付を選択してください',
-      })
-    }
-
-    // 3日前までに提出
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const threeDaysLater = new Date(today)
-    threeDaysLater.setDate(today.getDate() + 3)
-    if (new Date(data.startDate) < threeDaysLater) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['startDate'],
-        message: '欠食届は3日前までに提出してください',
-      })
-    }
-
-    // 食事選択
-    if (data.startDate === data.endDate) {
-      // 1日の場合、どちらもfalse/undefinedならエラー
-      if (!data.oneDayBreakfast && !data.oneDayDinner) {
+// スキーマを動的に生成する関数
+const createMealFormSchema = (deadlineDays: number) => {
+  return z
+    .object({
+      startDate: z.string().min(1, '開始日を選択してください'),
+      endDate: z.string().min(1, '終了日を選択してください'),
+      start_meal: z.enum(['breakfast', 'dinner']).nullable(),
+      end_meal: z.enum(['breakfast', 'dinner']).nullable(),
+      reason: z.string().min(1, '理由を入力してください'),
+      oneDayBreakfast: z.boolean().optional(),
+      oneDayDinner: z.boolean().optional(),
+    })
+    .superRefine((data, ctx) => {
+      // 開始日 <= 終了日
+      if (new Date(data.startDate) > new Date(data.endDate)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          path: ['oneDayBreakfast'],
-          message: 'いずれかの食事を選択してください',
+          path: ['startDate'],
+          message: '開始日は終了日より前または同じ日付を選択してください',
         })
       }
-    } else {
-      if (!data.start_meal && !data.end_meal) {
+
+      // 提出期限チェック
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const deadlineDate = new Date(today)
+      deadlineDate.setDate(today.getDate() + deadlineDays)
+      if (new Date(data.startDate) < deadlineDate) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          path: ['start_meal'],
-          message: 'いずれかの食事を選択してください',
+          path: ['startDate'],
+          message: `欠食届は${deadlineDays}日前までに提出してください`,
         })
       }
-    }
-  })
 
-export type MealFormValues = z.infer<typeof mealFormSchema>
+      // 食事選択
+      if (data.startDate === data.endDate) {
+        // 1日の場合、どちらもfalse/undefinedならエラー
+        if (!data.oneDayBreakfast && !data.oneDayDinner) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['oneDayBreakfast'],
+            message: 'いずれかの食事を選択してください',
+          })
+        }
+      } else {
+        if (!data.start_meal && !data.end_meal) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['start_meal'],
+            message: 'いずれかの食事を選択してください',
+          })
+        }
+      }
+    })
+}
+
+export type MealFormValues = z.infer<ReturnType<typeof createMealFormSchema>>
 
 export default function Meal() {
   const router = useRouter()
   const [formValues, setFormValues] = useState<MealFormValues | undefined>(undefined)
   const [isConfirm, setIsConfirm] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [systemConfig, setSystemConfig] = useState<SystemConfig | null>(null)
   const { uid } = useFirebaseAuthContext()
 
+  useEffect(() => {
+    const fetchConfig = async () => {
+      const configData = await getSystemConfigAction()
+      setSystemConfig(configData)
+    }
+    fetchConfig()
+  }, [])
+
   const today = dayjs().format('YYYY-MM-DD')
+
+  // デフォルト値を使用してスキーマを作成
+  const mealFormSchema = createMealFormSchema(systemConfig?.submissionDeadlineDays?.mealAbsence ?? 0)
 
   const {
     control,
@@ -104,6 +120,17 @@ export default function Meal() {
       oneDayDinner: false,
     },
   })
+
+  if (!systemConfig) {
+    return (
+      <div className="bg-white h-full flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner size={48} />
+          <p className="text-gray-600 mt-2">システム設定を読み込み中...</p>
+        </div>
+      </div>
+    )
+  }
 
   const startDate = watch('startDate')
   const endDate = watch('endDate')

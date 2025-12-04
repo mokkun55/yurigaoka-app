@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useForm, Controller, SubmitHandler } from 'react-hook-form'
+import { useForm, Controller, SubmitHandler, Control, UseFormHandleSubmit, FieldErrors } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import InputLabel from '@/_components/ui/input-label'
@@ -10,11 +10,12 @@ import { BaseSelect } from '@/_components/ui/input/base-select'
 import SectionTitle from '@/_components/ui/section-title'
 import { Button } from '@/_components/ui/button'
 import toast from 'react-hot-toast'
-import { registerUser, verifyInvitationCode } from './actions'
+import { registerUser, verifyInvitationCode, getSystemConfigAction } from './actions'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import LoadingSpinner from '@/_components/ui/loading-spinner'
 import { useFirebaseAuthContext } from '@/providers/AuthProvider'
+import { SystemConfig } from '@yurigaoka-app/common'
 
 // Zodスキーマ定義
 const invitationCodeSchema = z.object({
@@ -24,26 +25,30 @@ const invitationCodeSchema = z.object({
     .regex(/^[A-Z0-9]+$/, '招待コードは英数字のみで入力してください'),
 })
 
-const userFormSchema = z.object({
-  gradeName: z.string().min(1, '学年を選択してください'),
-  className: z.string().min(1, 'クラスを選択してください'),
-  club: z.enum(['ソフトテニス部', 'サッカー部', 'none']).optional(),
-  roomNumber: z
-    .string()
-    .length(4, '部屋番号は4桁で入力してください')
-    .regex(/^\d+$/, '部屋番号は数字で入力してください'),
-  parentName: z
-    .string()
-    .min(1, '保護者氏名を入力してください')
-    .regex(/^[^\s ]+$/, '名字と名前の間に空白を入れずに入力してください'),
-  homeAddressName: z.string().min(1, '登録名を入力してください'),
-  homeAddressAddress: z.string().min(1, '住所を入力してください'),
-  emergencyTel: z.string().regex(/^[0-9]{10,11}$/, '電話番号はハイフンなしの10桁または11桁で入力してください'),
-})
+// スキーマを動的に生成する関数
+const createUserFormSchema = (clubOptions: string[]) => {
+  const clubEnum = clubOptions.length > 0 ? z.enum(clubOptions as [string, ...string[]]) : z.string()
+  return z.object({
+    gradeName: z.string().min(1, '学年を選択してください'),
+    className: z.string().min(1, 'クラスを選択してください'),
+    club: clubEnum.optional(),
+    roomNumber: z
+      .string()
+      .length(4, '部屋番号は4桁で入力してください')
+      .regex(/^\d+$/, '部屋番号は数字で入力してください'),
+    parentName: z
+      .string()
+      .min(1, '保護者氏名を入力してください')
+      .regex(/^[^\s ]+$/, '名字と名前の間に空白を入れずに入力してください'),
+    homeAddressName: z.string().min(1, '登録名を入力してください'),
+    homeAddressAddress: z.string().min(1, '住所を入力してください'),
+    emergencyTel: z.string().regex(/^[0-9]{10,11}$/, '電話番号はハイフンなしの10桁または11桁で入力してください'),
+  })
+}
 
 // フォームの型定義
 export type InvitationCodeValues = z.infer<typeof invitationCodeSchema>
-export type UserFormValues = z.infer<typeof userFormSchema>
+export type UserFormValues = z.infer<ReturnType<typeof createUserFormSchema>>
 
 export default function RegisterPage() {
   const { currentUser } = useFirebaseAuthContext()
@@ -53,6 +58,8 @@ export default function RegisterPage() {
   const [isAuth, setIsAuth] = useState(false)
   // 検証済みの招待コードを保存
   const [verifiedInvitationCode, setVerifiedInvitationCode] = useState<string | null>(null)
+  // システム設定
+  const [systemConfig, setSystemConfig] = useState<SystemConfig | null>(null)
 
   const {
     control: invitationCodeControl,
@@ -62,6 +69,97 @@ export default function RegisterPage() {
     resolver: zodResolver(invitationCodeSchema),
     defaultValues: { invitationCode: '' },
   })
+
+  const [isVerifying, startVerifyingTransition] = useTransition()
+
+  const onInvitationCodeSubmit: SubmitHandler<InvitationCodeValues> = (data) => {
+    startVerifyingTransition(async () => {
+      try {
+        await verifyInvitationCode(data)
+        toast.success('認証に成功しました')
+        setVerifiedInvitationCode(data.invitationCode)
+        setIsAuth(true)
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          if (error.message === '招待コードが無効です' || error.message === '招待コードの有効期限が切れています') {
+            toast.error(error.message)
+          } else {
+            toast.error('認証に失敗しました')
+          }
+        } else {
+          toast.error('認証に失敗しました')
+        }
+        console.error('認証に失敗しました', error)
+      }
+    })
+  }
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const configData = await getSystemConfigAction()
+        setSystemConfig(configData)
+      } catch (error) {
+        console.error('Failed to load system config:', error)
+      }
+    }
+    fetchConfig()
+  }, [])
+
+  // systemConfigが取得されるまでローディング状態
+  if (!systemConfig) {
+    return (
+      <div className="flex flex-col gap-4 w-full content-center justify-center">
+        <div className="flex flex-col gap-2 text-center">
+          <LoadingSpinner size={48} />
+          <p className="text-(--sub-text)">システム設定を読み込み中...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // systemConfigが取得された後にのみフォームを初期化
+  return (
+    <UserRegistrationForm
+      systemConfig={systemConfig}
+      currentUser={currentUser}
+      router={router}
+      isAuth={isAuth}
+      verifiedInvitationCode={verifiedInvitationCode}
+      invitationCodeControl={invitationCodeControl}
+      handleInvitationCodeSubmit={handleInvitationCodeSubmit}
+      invitationCodeErrors={invitationCodeErrors}
+      isVerifying={isVerifying}
+      onInvitationCodeSubmit={onInvitationCodeSubmit}
+    />
+  )
+}
+
+// ユーザー登録フォームコンポーネント（systemConfigが取得された後にのみ表示）
+function UserRegistrationForm({
+  systemConfig,
+  currentUser,
+  router,
+  isAuth,
+  verifiedInvitationCode,
+  invitationCodeControl,
+  handleInvitationCodeSubmit,
+  invitationCodeErrors,
+  isVerifying,
+  onInvitationCodeSubmit,
+}: {
+  systemConfig: SystemConfig
+  currentUser: ReturnType<typeof useFirebaseAuthContext>['currentUser']
+  router: ReturnType<typeof useRouter>
+  isAuth: boolean
+  verifiedInvitationCode: string | null
+  invitationCodeControl: Control<InvitationCodeValues>
+  handleInvitationCodeSubmit: UseFormHandleSubmit<InvitationCodeValues>
+  invitationCodeErrors: FieldErrors<InvitationCodeValues>
+  isVerifying: boolean
+  onInvitationCodeSubmit: SubmitHandler<InvitationCodeValues>
+}) {
+  const userFormSchema = createUserFormSchema(systemConfig.clubOptions)
 
   const {
     control: userFormControl,
@@ -115,29 +213,6 @@ export default function RegisterPage() {
   }
 
   const [isPending, startTransition] = useTransition()
-  const [isVerifying, startVerifyingTransition] = useTransition()
-
-  const onInvitationCodeSubmit: SubmitHandler<InvitationCodeValues> = (data) => {
-    startVerifyingTransition(async () => {
-      try {
-        await verifyInvitationCode(data)
-        toast.success('認証に成功しました')
-        setVerifiedInvitationCode(data.invitationCode)
-        setIsAuth(true)
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          if (error.message === '招待コードが無効です' || error.message === '招待コードの有効期限が切れています') {
-            toast.error(error.message)
-          } else {
-            toast.error('認証に失敗しました')
-          }
-        } else {
-          toast.error('認証に失敗しました')
-        }
-        console.error('認証に失敗しました', error)
-      }
-    })
-  }
 
   const onUserFormSubmit: SubmitHandler<UserFormValues> = (data) => {
     startTransition(async () => {
@@ -284,11 +359,10 @@ export default function RegisterPage() {
                     <BaseSelect
                       {...field}
                       placeholder="部活を選択"
-                      options={[
-                        { label: 'ソフトテニス部', value: 'ソフトテニス部' },
-                        { label: 'サッカー部', value: 'サッカー部' },
-                        { label: 'それ以外 または 未所属', value: 'none' },
-                      ]}
+                      options={systemConfig.clubOptions.map((club) => ({
+                        label: club === 'none' ? 'それ以外 または 未所属' : club,
+                        value: club,
+                      }))}
                       className="w-full"
                     />
                   )}

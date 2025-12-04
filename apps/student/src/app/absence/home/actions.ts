@@ -2,13 +2,19 @@
 
 import { HomecomingFormValues } from './page'
 import { postHomecomingSubmission } from '@/firestore/submission-operations'
-import { HomecomingSubmission, Location } from '@yurigaoka-app/common'
+import { HomecomingSubmission, Location, SystemConfig } from '@yurigaoka-app/common'
 import { fetchLocationsByUser } from '@/firestore/location-operations'
 import { combineDateAndTime } from '@/utils/dateUtils'
+import { getSystemConfig } from '@/firestore/system-config-operations'
 
 // uidからlocationsを取得
 export async function getLocations(uid: string): Promise<Location[]> {
   return await fetchLocationsByUser(uid)
+}
+
+// システム設定を取得
+export async function getSystemConfigAction(): Promise<SystemConfig> {
+  return await getSystemConfig()
 }
 
 // 帰省届を提出

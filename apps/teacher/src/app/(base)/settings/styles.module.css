@@ -1,0 +1,186 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  .headerLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .headerRight {
+    display: flex;
+    flex-direction: row;
+  }
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--main-text);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.section {
+  background-color: var(--card-background);
+  border: 1px solid var(--border-gray);
+  border-radius: 8px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--main-text);
+  margin: 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-gray);
+}
+
+.sectionDescription {
+  font-size: 14px;
+  color: var(--sub-text);
+  margin: 0;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.userInfo p {
+  margin: 0;
+  color: var(--main-text);
+}
+
+.settingItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settingItemLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--main-text);
+}
+
+.settingItemDescription {
+  font-size: 12px;
+  color: var(--sub-text);
+  margin: 0;
+}
+
+.settingItemInput {
+  max-width: 200px;
+}
+
+.settingItemRow {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.settingItemRow .settingItem {
+  flex: 1;
+}
+
+.clubList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.clubItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background-color: var(--muted-background);
+  border: 1px solid var(--border-gray);
+  border-radius: 4px;
+}
+
+.clubItemName {
+  font-size: 14px;
+  color: var(--main-text);
+  font-weight: 500;
+}
+
+.addClubForm {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.timeGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-gray);
+}
+
+.timeGroup:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.timeGroupTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--main-text);
+  margin: 0;
+}
+
+.readOnlyTime {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid var(--border-gray);
+  border-radius: 4px;
+  background-color: var(--muted-background);
+  min-height: 40px;
+  max-width: 200px;
+}
+
+.readOnlyTime span {
+  font-size: 16px;
+  color: var(--main-text);
+  font-weight: 500;
+}
+
+.timeInput {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--border-gray);
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--main-text);
+  background-color: white;
+}
+
+.timeInput:focus {
+  outline: none;
+  border-color: var(--main-blue);
+}
