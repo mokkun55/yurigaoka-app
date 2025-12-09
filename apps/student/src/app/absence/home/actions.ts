@@ -37,6 +37,21 @@ export async function submitHomecomingForm(data: HomecomingFormValues, uid: stri
     mealsOff: generateMealsOffArray(data.startDate, data.endDate, data.meal_start, data.meal_end),
   }
   await postHomecomingSubmission(parsedData)
+
+  // メール通知を送信
+  try {
+    const { sendNotificationEmail } = await import('@/utils/email')
+    await sendNotificationEmail(uid, '帰省', {
+      startDate: startDateTime,
+      endDate: endDateTime,
+      reason: data.reason || '',
+      specialReason: data.specialReason,
+      mealsOff: parsedData.mealsOff,
+    })
+  } catch (error) {
+    // メール送信エラーはログに記録するが、届け出の提出は成功とする
+    console.error('メール通知の送信に失敗しました:', error)
+  }
 }
 
 // 期間中の欠食配列を生成する関数
