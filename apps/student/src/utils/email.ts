@@ -179,7 +179,7 @@ ${isOneDay ? `欠食する食事: ${mealStatusText}` : mealStatusText}
 
   // メール送信
   const mailOptions = {
-    from: smtpUser,
+    from: '帰省届管理ツール <mokkunpc@gmai.com>',
     to: recipientEmail,
     subject: emailSubject,
     text: emailBody,

@@ -6,6 +6,7 @@ import { HomecomingSubmission, MealAbsenceSubmission, Location } from '@yurigaok
 import { adminDb } from '@/lib/firebase/admin'
 import { convertDate } from '@/utils/dateUtils'
 import { revalidatePath } from 'next/cache'
+import { sendApprovalEmail, sendRejectionEmail } from '@/utils/email'
 
 export type SubmissionWithUser = (HomecomingSubmission | MealAbsenceSubmission) & {
   userName: string
@@ -66,6 +67,13 @@ export async function getAllSubmissions(): Promise<SubmissionWithUser[]> {
 export async function approveSubmission(submissionId: string): Promise<void> {
   try {
     await updateSubmissionStatus(submissionId, 'approved')
+    // メール送信（エラーが発生しても承認処理は続行）
+    try {
+      await sendApprovalEmail(submissionId)
+    } catch (emailError) {
+      console.error('Failed to send approval email:', emailError)
+      // メール送信に失敗しても承認処理は成功とする
+    }
     revalidatePath('/reports')
   } catch (error) {
     console.error('Failed to approve submission:', error)
@@ -80,6 +88,13 @@ export async function rejectSubmission(submissionId: string, rejectReason: strin
       throw new Error('差し戻し理由は必須です')
     }
     await updateSubmissionStatus(submissionId, 'rejected', rejectReason)
+    // メール送信（エラーが発生しても却下処理は続行）
+    try {
+      await sendRejectionEmail(submissionId, rejectReason)
+    } catch (emailError) {
+      console.error('Failed to send rejection email:', emailError)
+      // メール送信に失敗しても却下処理は成功とする
+    }
     revalidatePath('/reports')
   } catch (error) {
     console.error('Failed to reject submission:', error)
