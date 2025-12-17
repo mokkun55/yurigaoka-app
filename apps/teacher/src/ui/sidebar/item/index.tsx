@@ -3,7 +3,7 @@
 import styles from './styles.module.css'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { House, LampCeiling, FileText, Users, Settings, Newspaper, Key, UserRoundCog } from 'lucide-react'
+import { House, LampCeiling, FileText, Users, Settings, Key, UserRoundCog } from 'lucide-react'
 
 type Item = {
   href: string
@@ -31,11 +31,6 @@ const items: Item[] = [
     href: '/students',
     label: '寮生一覧',
     icon: <Users />,
-  },
-  {
-    href: '/notifications',
-    label: 'お知らせ管理',
-    icon: <Newspaper />,
   },
   {
     href: '/code',

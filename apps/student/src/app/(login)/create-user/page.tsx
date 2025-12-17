@@ -294,7 +294,7 @@ function UserRegistrationForm({
       <div className="w-full h-full flex flex-col ">
         {/* ヘッダー */}
         <div className="flex flex-col gap-1 text-center my-3">
-          <h1 className="text-2xl font-bold">ようこそ百合が丘サポートへ</h1>
+          <h1 className="text-2xl font-bold">ようこそ帰省申請アプリへ</h1>
           <p className="text-(--sub-text)">はじめに初期設定をしてください</p>
         </div>
 

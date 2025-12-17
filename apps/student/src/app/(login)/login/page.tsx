@@ -18,7 +18,7 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col gap-4 w-[300px] justify-center">
       <div className="flex flex-col gap-2 text-center">
-        <h1 className="text-2xl font-bold">百合が丘サポート</h1>
+        <h1 className="text-2xl font-bold">帰省申請アプリ</h1>
         <p className="text-(--sub-text)">ようこそ！</p>
       </div>
 

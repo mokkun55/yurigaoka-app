@@ -23,6 +23,20 @@ export async function submitMealForm(data: MealFormValues, uid: string) {
     mealsOff: generateMealsOffArray(data),
   }
   await postMealAbsenceSubmission(parsedData)
+
+  // メール通知を送信
+  try {
+    const { sendNotificationEmail } = await import('@/utils/email')
+    await sendNotificationEmail(uid, '欠食', {
+      startDate: new Date(data.startDate),
+      endDate: new Date(data.endDate),
+      reason: data.reason || '',
+      mealsOff: parsedData.mealsOff,
+    })
+  } catch (error) {
+    // メール送信エラーはログに記録するが、届け出の提出は成功とする
+    console.error('メール通知の送信に失敗しました:', error)
+  }
 }
 
 // 期間中の欠食配列を生成する関数

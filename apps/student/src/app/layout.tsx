@@ -8,7 +8,7 @@ import { AuthProvider } from '@/providers/AuthProvider'
 dayjs.locale('ja')
 
 export const metadata: Metadata = {
-  title: '百合が丘サポート',
+  title: '帰省申請アプリ',
   description: '百合が丘寮用のwebアプリ',
 }
 
