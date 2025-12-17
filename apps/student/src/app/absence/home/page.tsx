@@ -182,7 +182,11 @@ function HomecomingForm({
       router.push('/')
     } catch (e) {
       console.error(e)
-      toast.error('提出に失敗しました')
+      if (e instanceof Error) {
+        toast.error(e.message)
+      } else {
+        toast.error('提出に失敗しました')
+      }
     } finally {
       setIsSubmitting(false)
     }

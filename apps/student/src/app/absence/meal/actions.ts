@@ -4,6 +4,7 @@ import { MealFormValues } from './page'
 import { postMealAbsenceSubmission } from '@/firestore/submission-operations'
 import { MealAbsenceSubmission, SystemConfig } from '@yurigaoka-app/common'
 import { getSystemConfig } from '@/firestore/system-config-operations'
+import { validateSubmissionAcceptanceTime } from '@/utils/submissionValidation'
 
 // システム設定を取得
 export async function getSystemConfigAction(): Promise<SystemConfig> {
@@ -12,6 +13,10 @@ export async function getSystemConfigAction(): Promise<SystemConfig> {
 
 // 欠食届を提出
 export async function submitMealForm(data: MealFormValues, uid: string) {
+  // 申請受付時間のバリデーション
+  const systemConfig = await getSystemConfig()
+  validateSubmissionAcceptanceTime(systemConfig.submissionAcceptanceHours)
+
   // 受け取ったdataをMealAbsenceSubmission型に変換
   const parsedData: Omit<MealAbsenceSubmission, 'id'> = {
     userId: uid,
