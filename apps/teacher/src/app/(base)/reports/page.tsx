@@ -2,8 +2,16 @@ import { getAllSubmissions } from './actions'
 import { Report } from './_type/report'
 import ReportsClient from './_components/reports-client'
 import { convertMealsOffToMeals } from '@/utils/submissionUtils'
+import { getUserRole } from '@/utils/auth'
+import { redirect } from 'next/navigation'
 
 export default async function StudentsPage() {
+  // ロールを取得して寮長のアクセスを拒否
+  const role = await getUserRole()
+  if (role === 'manager') {
+    redirect('/students/on-leave')
+  }
+
   // Server Actionsで申請を取得
   const submissions = await getAllSubmissions()
 

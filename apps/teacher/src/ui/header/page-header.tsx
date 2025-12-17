@@ -10,7 +10,7 @@ const pageTitles: Record<string, string> = {
   '/reports': 'すべての申請',
   '/students': '寮生一覧',
   '/code': '招待コードの管理',
-  '/students/leaders': '指導寮生の管理',
+  '/students/leaders': '先生&寮長の管理',
   '/settings': '設定',
 }
 

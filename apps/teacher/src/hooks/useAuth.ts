@@ -35,8 +35,20 @@ export function useAuth() {
         throw new Error('ログインに失敗しました')
       }
 
-      // 教員の場合は常にホームページにリダイレクト
-      router.push('/home')
+      // ロールを取得してリダイレクト先を決定
+      const roleResponse = await fetch('/api/auth/verify-token')
+      if (roleResponse.ok) {
+        const roleData = await roleResponse.json()
+        // 寮長の場合は帰省者一覧へリダイレクト
+        if (roleData.role === 'manager') {
+          router.push('/students/on-leave')
+        } else {
+          router.push('/home')
+        }
+      } else {
+        // ロール取得に失敗した場合はホームへリダイレクト
+        router.push('/home')
+      }
     } catch (error) {
       console.error(error)
       return `ログインに失敗しました: ${error}`
@@ -68,8 +80,20 @@ export function useAuth() {
         throw new Error('ログインに失敗しました')
       }
 
-      // 教員の場合は常にホームページにリダイレクト
-      router.push('/home')
+      // ロールを取得してリダイレクト先を決定
+      const roleResponse = await fetch('/api/auth/verify-token')
+      if (roleResponse.ok) {
+        const roleData = await roleResponse.json()
+        // 寮長の場合は帰省者一覧へリダイレクト
+        if (roleData.role === 'manager') {
+          router.push('/students/on-leave')
+        } else {
+          router.push('/home')
+        }
+      } else {
+        // ロール取得に失敗した場合はホームへリダイレクト
+        router.push('/home')
+      }
     } catch (error) {
       console.error(error)
       return `ログインに失敗しました: ${error}`
@@ -93,8 +117,20 @@ export function useAuth() {
         throw new Error('ログインに失敗しました')
       }
 
-      // 教員の場合は常にホームページにリダイレクト
-      router.push('/home')
+      // ロールを取得してリダイレクト先を決定
+      const roleResponse = await fetch('/api/auth/verify-token')
+      if (roleResponse.ok) {
+        const roleData = await roleResponse.json()
+        // 寮長の場合は帰省者一覧へリダイレクト
+        if (roleData.role === 'manager') {
+          router.push('/students/on-leave')
+        } else {
+          router.push('/home')
+        }
+      } else {
+        // ロール取得に失敗した場合はホームへリダイレクト
+        router.push('/home')
+      }
     } catch (error) {
       console.error(error)
       return `ログインに失敗しました: ${error}`

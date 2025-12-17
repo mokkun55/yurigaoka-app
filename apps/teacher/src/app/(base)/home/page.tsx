@@ -3,11 +3,19 @@ import Report from './_components/report'
 import styles from './styles.module.css'
 import { getPendingSubmissions } from './actions'
 import { convertSubmissionToReportItem } from '@/utils/submissionUtils'
+import { getUserRole } from '@/utils/auth'
+import { redirect } from 'next/navigation'
 
 const studentsCount = 100
 const onLeaveCount = 10
 
 export default async function Home() {
+  // ロールを取得して寮長のアクセスを拒否
+  const role = await getUserRole()
+  if (role === 'manager') {
+    redirect('/students/on-leave')
+  }
+
   // サーバーアクションで承認待ちの申請を取得
   const pendingSubmissions = await getPendingSubmissions()
 
