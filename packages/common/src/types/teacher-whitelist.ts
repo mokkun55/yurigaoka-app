@@ -1,5 +1,6 @@
 export type TeacherWhitelist = {
   id: string
   email: string
-  role: string
+  role: 'teacher' | 'manager'
+  createdAt: Date
 }

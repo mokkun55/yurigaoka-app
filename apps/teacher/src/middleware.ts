@@ -52,8 +52,13 @@ export async function middleware(request: NextRequest) {
   // 公開ページ（認証不要だが、認証済みユーザーは別ページへリダイレクト）
   const publicUrls = ['/login']
   if (publicUrls.some((url) => pathname.startsWith(url))) {
-    // 既にログイン済みの場合はホームへリダイレクト
+    // 既にログイン済みの場合はロールに応じてリダイレクト
     if (session?.isRegistered) {
+      // 寮長の場合は帰省者一覧へリダイレクト
+      if (session.role === 'manager') {
+        return NextResponse.redirect(new URL('/students/on-leave', request.url))
+      }
+      // その他の場合はホームへリダイレクト
       return NextResponse.redirect(new URL('/home', request.url))
     }
     return NextResponse.next()
@@ -63,6 +68,18 @@ export async function middleware(request: NextRequest) {
   // 未ログインの場合はログインページへリダイレクト
   if (!session) {
     return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  // 寮長がアクセスできないページをチェック
+  if (session.role === 'manager') {
+    // 寮長は/homeと/reportsにアクセスできない
+    if (pathname === '/home' || pathname === '/reports') {
+      return NextResponse.redirect(new URL('/students/on-leave', request.url))
+    }
+    // 寮長は招待コードの管理、先生&寮長の管理、設定にもアクセスできない
+    if (pathname.startsWith('/code') || pathname.startsWith('/students/leaders') || pathname.startsWith('/settings')) {
+      return NextResponse.redirect(new URL('/students/on-leave', request.url))
+    }
   }
 
   // 教員の場合はisRegisteredチェックをスキップ（教員は登録処理不要）

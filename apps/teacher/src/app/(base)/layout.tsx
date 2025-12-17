@@ -21,7 +21,7 @@ export default function BaseLayout({
           <SidebarItem label="すべての申請" />
           <SidebarItem label="寮生一覧" />
           <SidebarItem label="招待コードの管理" />
-          <SidebarItem label="指導寮生の管理" />
+          <SidebarItem label="先生&寮長の管理" />
           <SidebarItem label="設定" />
         </div>
       </div>
