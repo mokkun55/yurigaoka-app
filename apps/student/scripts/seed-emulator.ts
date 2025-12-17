@@ -93,7 +93,16 @@ async function seedData() {
       evening: '20:30',
     })
 
-    console.log(`  ✓ システム設定データを4件追加しました`)
+    await db.collection('systemConfig').doc('notificationRecipientEmail').set({
+      email: 'kutc-dormitory-teachers@googlegroups.com',
+    })
+
+    await db.collection('systemConfig').doc('submissionAcceptanceHours').set({
+      start: '09:00',
+      end: '17:00',
+    })
+
+    console.log(`  ✓ システム設定データを6件追加しました`)
 
     console.log('🎉 シードデータの投入が完了しました！')
   } catch (error) {

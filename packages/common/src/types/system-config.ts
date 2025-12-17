@@ -35,6 +35,16 @@ export type RollCallTime = {
 }
 
 /**
+ * 申請受付時間設定（平日）
+ */
+export type SubmissionAcceptanceHours = {
+  /** 開始時刻（HH:mm形式） */
+  start: string
+  /** 終了時刻（HH:mm形式） */
+  end: string
+}
+
+/**
  * システム設定全体
  */
 export type SystemConfig = {
@@ -46,4 +56,8 @@ export type SystemConfig = {
   curfewTime: CurfewTime
   /** 点呼時刻設定 */
   rollCallTime: RollCallTime
+  /** メール通知先アドレス */
+  notificationRecipientEmail: string
+  /** 申請受付時間設定（平日） */
+  submissionAcceptanceHours: SubmissionAcceptanceHours
 }

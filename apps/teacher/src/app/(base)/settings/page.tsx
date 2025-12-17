@@ -7,6 +7,7 @@ import styles from './styles.module.css'
 import { SubmissionDeadlineSection } from './_components/submission-deadline-section'
 import { ClubOptionsSection } from './_components/club-options-section'
 import { TimeSettingsSection } from './_components/time-settings-section'
+import { NotificationSettingsSection } from './_components/notification-settings-section'
 import { useAuth } from '@/hooks/useAuth'
 import type { SystemConfig } from '@yurigaoka-app/common'
 import { fetchSystemConfig, saveSystemConfig } from './actions'
@@ -138,6 +139,14 @@ export default function SettingPage() {
         <TimeSettingsSection
           rollCallTime={config.rollCallTime}
           onRollCallTimeChange={(time) => handleConfigChange({ rollCallTime: time })}
+        />
+
+        {/* 通知・受付設定 */}
+        <NotificationSettingsSection
+          notificationRecipientEmail={config.notificationRecipientEmail}
+          submissionAcceptanceHours={config.submissionAcceptanceHours}
+          onNotificationRecipientEmailChange={(email) => handleConfigChange({ notificationRecipientEmail: email })}
+          onSubmissionAcceptanceHoursChange={(hours) => handleConfigChange({ submissionAcceptanceHours: hours })}
         />
 
         <div>
