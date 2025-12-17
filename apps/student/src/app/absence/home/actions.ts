@@ -6,6 +6,7 @@ import { HomecomingSubmission, Location, SystemConfig } from '@yurigaoka-app/com
 import { fetchLocationsByUser } from '@/firestore/location-operations'
 import { combineDateAndTime } from '@/utils/dateUtils'
 import { getSystemConfig } from '@/firestore/system-config-operations'
+import { validateSubmissionAcceptanceTime } from '@/utils/submissionValidation'
 
 // uidからlocationsを取得
 export async function getLocations(uid: string): Promise<Location[]> {
@@ -19,6 +20,10 @@ export async function getSystemConfigAction(): Promise<SystemConfig> {
 
 // 帰省届を提出
 export async function submitHomecomingForm(data: HomecomingFormValues, uid: string) {
+  // 申請受付時間のバリデーション
+  const systemConfig = await getSystemConfig()
+  validateSubmissionAcceptanceTime(systemConfig.submissionAcceptanceHours)
+
   // 日付と時刻を組み合わせて完全なDateオブジェクトを作成
   const startDateTime = combineDateAndTime(data.startDate, data.departureTime)
   const endDateTime = combineDateAndTime(data.endDate, data.returnTime)

@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer'
 import { fetchUserOperation } from '@/firestore/user-operations'
+import { getSystemConfig } from '@/firestore/system-config-operations'
 import dayjs from 'dayjs'
 
 // 欠食状況を確認画面と同じ形式で表示する関数
@@ -68,14 +69,17 @@ export async function sendNotificationEmail(
   // 環境変数の確認
   const smtpUser = process.env.SMTP_USER
   const smtpPassword = process.env.SMTP_PASSWORD
-  const recipientEmail = process.env.NOTIFICATION_RECIPIENT_EMAIL
 
   if (!smtpUser || !smtpPassword) {
     throw new Error('SMTP設定が不完全です。SMTP_USERとSMTP_PASSWORDを設定してください。')
   }
 
+  // SystemConfigから通知先メールアドレスを取得
+  const systemConfig = await getSystemConfig()
+  const recipientEmail = systemConfig.notificationRecipientEmail
+
   if (!recipientEmail) {
-    throw new Error('送信先メールアドレスが設定されていません。NOTIFICATION_RECIPIENT_EMAILを設定してください。')
+    throw new Error('送信先メールアドレスが設定されていません。管理画面で設定してください。')
   }
 
   // ユーザー情報を取得
