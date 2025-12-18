@@ -4,31 +4,169 @@
   gap: 32px;
 
   .title {
-    font-size: 24px;
+    font-size: 32px;
     font-weight: 700;
+    color: var(--main-text);
+    margin-bottom: 8px;
+  }
 
-    .count {
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 28px;
+  }
+
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 32px;
+    background-color: var(--card-background);
+    border: 2px solid var(--border-gray);
+    border-radius: 16px;
+    text-decoration: none;
+    color: var(--main-text);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 220px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .cardIconWrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--main-blue-10) 0%, rgba(59, 130, 246, 0.05) 100%);
+      transition: all 0.3s ease;
+    }
+
+    .cardIcon {
+      color: var(--main-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cardContent {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .cardLabel {
       font-size: 20px;
       font-weight: 700;
-      color: var(--red);
-      margin-left: 4px;
+      line-height: 1.3;
     }
-  }
 
-  .dormitoryStatus {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    .cardDescription {
+      font-size: 14px;
+      color: var(--sub-text);
+      line-height: 1.5;
+    }
 
-    .statusContainer {
+    .badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
       display: flex;
-      gap: 16px;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      height: 28px;
+      padding: 0 10px;
+      background-color: var(--red);
+      color: white;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
     }
-  }
 
-  .reportItems {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    /* カラー別のスタイル */
+    &.card_orange {
+      .cardIconWrapper {
+        background: linear-gradient(135deg, var(--orange-10) 0%, rgba(249, 115, 22, 0.05) 100%);
+      }
+      .cardIcon {
+        color: var(--orange);
+      }
+      &:hover {
+        border-color: var(--orange);
+        box-shadow: 0 8px 24px rgba(249, 115, 22, 0.15);
+      }
+    }
+
+    &.card_blue {
+      .cardIconWrapper {
+        background: linear-gradient(135deg, var(--main-blue-10) 0%, rgba(59, 130, 246, 0.05) 100%);
+      }
+      .cardIcon {
+        color: var(--main-blue);
+      }
+      &:hover {
+        border-color: var(--main-blue);
+        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+      }
+    }
+
+    &.card_green {
+      .cardIconWrapper {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+      }
+      .cardIcon {
+        color: var(--green);
+      }
+      &:hover {
+        border-color: var(--green);
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
+      }
+    }
+
+    &.card_purple {
+      .cardIconWrapper {
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+      }
+      .cardIcon {
+        color: rgba(139, 92, 246, 1);
+      }
+      &:hover {
+        border-color: rgba(139, 92, 246, 1);
+        box-shadow: 0 8px 24px rgba(139, 92, 246, 0.15);
+      }
+    }
+
+    &.card_indigo {
+      .cardIconWrapper {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+      }
+      .cardIcon {
+        color: rgba(99, 102, 241, 1);
+      }
+      &:hover {
+        border-color: rgba(99, 102, 241, 1);
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15);
+      }
+    }
+
+    &.card_gray {
+      .cardIconWrapper {
+        background: linear-gradient(135deg, rgba(75, 85, 99, 0.1) 0%, rgba(75, 85, 99, 0.05) 100%);
+      }
+      .cardIcon {
+        color: var(--gray);
+      }
+      &:hover {
+        border-color: var(--gray);
+        box-shadow: 0 8px 24px rgba(75, 85, 99, 0.15);
+      }
+    }
   }
 }
