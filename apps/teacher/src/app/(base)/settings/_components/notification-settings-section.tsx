@@ -45,8 +45,7 @@ export function NotificationSettingsSection({
             onChange={handleEmailChange}
             placeholder="example@example.com"
             style={{
-              width: '100%',
-              maxWidth: '500px',
+              width: '500px',
               padding: '8px',
               border: '1px solid var(--border-gray)',
               borderRadius: '4px',
