@@ -18,7 +18,7 @@ const allItems: Item[] = [
     href: '/home',
     label: 'ホーム',
     icon: <House />,
-    roles: ['teacher'], // 寮長はアクセス不可
+    // 全ロールがアクセス可能
   },
   {
     href: '/students/on-leave',
