@@ -53,6 +53,7 @@ firebase-debug.log
 firestore-debug.log
 ui-debug.log
 *.cache
+/firebase-export-*
 
 # Firebase Emulator data
 apps/student/emulator-data/
