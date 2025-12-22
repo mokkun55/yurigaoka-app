@@ -72,8 +72,8 @@ export async function middleware(request: NextRequest) {
 
   // 寮長がアクセスできないページをチェック
   if (session.role === 'manager') {
-    // 寮長は/homeと/reportsにアクセスできない
-    if (pathname === '/home' || pathname === '/reports') {
+    // 寮長は/reportsにアクセスできない
+    if (pathname === '/reports') {
       return NextResponse.redirect(new URL('/students/on-leave', request.url))
     }
     // 寮長は招待コードの管理、先生&寮長の管理、設定にもアクセスできない
